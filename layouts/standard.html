@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href=".." />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{organization.short_name}}</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="icon" href="{{branding.favicon_url}}" sizes="192x192" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script defer src="assets/js/scripts.js"></script>
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <section>
+        <h2>Standard: {{control.name}}</h2>
+        <div>{{#markdown}}{{control.body}}{{/markdown}}</div>
+        <div class="folder-controls">
+          <button onclick="expandAll()">Expand All</button>
+          <button onclick="collapseAll()">Collapse All</button>
+        </div>
+      </section>
+
+      {{#each control.mappings}}
+      <section class="controls">
+        <h3 class="collapsible">
+          <span>
+            <i class="fa-solid fa-compass"></i>
+            Category: {{@key}}
+            <span class="stats"
+              >({{stats.satisfied}} of {{stats.total}} satisfied)</span
+            >
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: {{stats.percent}}%"></div>
+            </div>
+          </span>
+        </h3>
+        <div class="content">
+          <ul class="criteria-list">
+            {{#criteria}}
+            <li
+              class="criteria-item {{#if controls}}satisfied{{else}}open{{/if}}"
+            >
+              <div class="criteria-header">
+                <span class="criteria-id"><a name="{{id}}">{{id}}</a></span>
+                <span class="criteria-name">{{name}}</span>
+              </div>
+              <div class="criteria-description">
+                {{#if description}}{{description}}{{/if}}
+              </div>
+              {{#if controls}}
+              <ul class="controls-list">
+                {{#each controls}}
+                <li class="control-item {{type}}-icon">
+                  <a href="{{id}}.html">{{name}}</a>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
+            </li>
+            {{/criteria}}
+          </ul>
+        </div>
+      </section>
+      {{/each}}
+    </main>
+    {{>footer}}
+  </body>
+</html>

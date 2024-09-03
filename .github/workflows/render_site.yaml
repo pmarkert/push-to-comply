@@ -1,0 +1,46 @@
+name: Publish Policies
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Manual trigger for on-demand tasks
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate HTML files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+        run: npm run build
+
+      - name: Build GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: "public/"
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Push to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5

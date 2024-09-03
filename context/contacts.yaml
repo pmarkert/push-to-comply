@@ -1,0 +1,17 @@
+security_analyst:
+  name: Alice Secure
+  email: alicesecure@example.com
+  title: Security Analyst
+  github: nonexistent_username
+
+privacy_officer:
+  name: Val Idate
+  email: validate@example.com
+  title: CIO
+  github: nonexistent_username
+
+it_admin:
+  name: Admi Nistrator
+  email: administrator@example.com
+  title: Director of IT
+  github: nonexistent_username

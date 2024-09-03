@@ -1,0 +1,26 @@
+{
+  "name": "imply",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf public",
+    "build": "node .github/actions/render_site.mjs",
+    "procedures": "node .github/actions/generate_tickets.mjs",
+    "serve": "npx live-server -q public",
+    "watch": "npx nodemon --ext '*' --watch .github/actions --watch . --ignore public --exec 'npm run build' & npm run serve"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
+    "@octokit/rest": "^21.0.2",
+    "cron-parser": "^4.9.0",
+    "cronstrue": "^2.50.0",
+    "handlebars": "^4.7.8",
+    "js-yaml": "^4.1.0",
+    "luxon": "^3.5.0",
+    "markdown-it": "^14.1.0"
+  }
+}

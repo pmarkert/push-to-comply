@@ -1,0 +1,30 @@
+name: Generate Compliance Tasks
+
+on:
+  schedule:
+    - cron: "1 0 * * *" # Daily one minute after midnight UTC
+  workflow_dispatch: # Manual trigger for on-demand tasks
+  repository_dispatch:
+    types:
+      - trigger_procedure
+
+jobs:
+  generate-tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate and assign tickets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+        run: |
+          npm run procedures '${{ toJson(github.event.client_payload) }}'

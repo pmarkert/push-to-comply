@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{organization.short_name}}</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="icon" href="{{branding.favicon_url}}" sizes="192x192" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script defer src="assets/js/scripts.js"></script>
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <section class="welcome">
+        <h2>Welcome to the {{organization.short_name}} Trust Portal</h2>
+        <p>{{branding.welcome_message}}</p>
+        <div class="folder-controls">
+          <button onclick="expandAll()">Expand All</button>
+          <button onclick="collapseAll()">Collapse All</button>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">Standards</h3>
+        <div class="content">
+          <ul class="control-list">
+            {{#each standards}} {{>control_list control_type='standard'}}
+            {{/each}}
+          </ul>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="narratives/index.html">Company Narratives</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{#each narratives}} {{>control_list control_type='narrative'}}
+            {{/each}}
+          </ul>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="policies/index.html">Policy Documents</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{#each policies}} {{>control_list control_type='policy'}} {{/each}}
+          </ul>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="procedures/index.html">Control Procedures</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{# procedures}} {{>control_list control_type='procedure'}} {{/
+            procedures}}
+          </ul>
+        </div>
+      </section>
+    </main>
+    {{>footer}}
+  </body>
+</html>

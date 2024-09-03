@@ -1,0 +1,24 @@
+{{#if items}}
+<section class="controls">
+  <div class="folder collapsible">
+    <span class="folder-icon"></span>{{name}}/
+  </div>
+  <div class="content">
+    <ul class="control-list">
+      {{#each items}} {{>control_list control_type=../control_type}} {{/each}}
+    </ul>
+  </div>
+</section>
+{{else}}
+<li>
+  <a href="{{id}}.html"
+    ><i class="{{control_type}}-icon"></i>
+    {{name}}
+  </a>
+  {{#if_equals type "procedure"}}
+  <div class="schedule">
+    {{#if cron}}{{cronstrue cron}}{{else}}On Demand{{/if}}
+  </div>
+  {{/if_equals}}
+</li>
+{{/if}}

@@ -1,0 +1,28 @@
+{{#if_equals control.type "procedure"}}
+<div class="tickets-link">
+<a
+    target="_blank"
+    href="https://github.com/{{control.github.owner}}/{{control.github.repo}}/issues?q=label%3A%22{{control.id}}%22%20label%3A%22{{config.issue_label}}%22"
+    >
+    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+    View Existing Tickets</a> </div>
+    <button class="collapsible collapsed">Trigger This Procedure</button>
+    <form id="dispatchForm" style="display:none" onsubmit="return trigger_procedure(event)">
+    <div id="authStatus" style="display:none">
+        <p>You are already authenticated.</p>
+        <button id="clearToken">Clear Token</button>
+    </div>
+    <div id="authForm">
+        <input type="password" id="token" name="token" required placeholder="GitHub Token"/>
+        <input type="checkbox" id="save_token" name="save_token" value="save_token" />
+    </div>
+    <input type="hidden" id="repo" name="repo" value="{{control.github.repo}}" />
+    <input type="hidden" id="owner" name="owner" value="{{control.github.owner}}" />
+    <input type="hidden" id="procedure_id" name="procedure" value="{{control.id}}" />
+    {{#each control.dynamic_fields}}
+    <input type="text" id="{{this}}" name="{{this}}" required placeholder="{{this}}" />
+    {{/each}}
+    <input type="submit" value="Submit" />
+</form>
+</div>
+{{/if_equals}}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charmet="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{organization.short_name}}</title>
+    <base href="{{base}}" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="icon" href="{{branding.favicon_url}}" sizes="192x192" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script defer src="assets/js/scripts.js"></script>
+  </head>
+  <body>
+    {{>header}}
+    <main class="content">
+      <div class="policy-content">
+        <div class="policy-header">
+          <h1>{{control.name}}</h1>
+          <div class="policy-meta">
+            {{#if policies.approver}}<span
+              >Approved by: {{policies.approver}}</span
+            >{{/if}}{{#if control.approval_date}}<span
+              >Dated: {{control.approval_date}}</span
+            >{{else}}{{#if policies.approval_date}}<span
+              >Dated: {{policies.approval_date}}</span
+            >{{/if}}{{/if}}{{#if control.owner}}
+            <span>Owner: {{control.owner}}</span>
+            {{/if}}{{#if control.version}}
+            <span>Version: {{control.version}}</span>
+            {{/if}}{{#if_equals control.type "procedure"}}
+            <span
+              >Scheduled: {{#if control.cron}}{{cronstrue
+              control.cron}}{{else}}On Demand{{/if}}</span
+            >
+            {{/if_equals}}{{#if control.satisfies}}{{#each
+            control.satisfies}}<span
+              >Satisfies: <a href="standards/{{@key}}.html">{{@key}}</a>[{{#each
+              this}}{{#if_equals @index 0}}{{else}}, {{/if_equals}}<a
+                href="standards/{{@../key}}.html#{{this}}"
+                >{{this}}</a
+              >{{/each}}]</span
+            >{{/each}}{{/if}}
+          </div>
+        </div>
+        {{>procedure_form}}
+        <div class="markdown-content">
+          {{#markdown}}{{control.body}}{{/markdown}}
+        </div>
+      </div>
+    </main>
+    {{>footer}}
+  </body>
+</html>
