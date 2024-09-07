@@ -85,9 +85,7 @@ class GitHubIssuesAdapter {
         sort: "created",
         direction: "desc",
       })
-      .then((issues) =>
-        issues.data.length ? null : new Date(issues.data[0].created_at)
-      );
+      .then((issues) => new Date(issues.data?.[0]?.created_at));
   };
 }
 
