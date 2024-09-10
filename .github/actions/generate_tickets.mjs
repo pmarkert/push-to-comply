@@ -8,6 +8,10 @@ const exec_promised = promisify(child_process.exec);
 const exec = (command) =>
   exec_promised(command).then(({ stdout }) => stdout.trim());
 
+function log(...message) {
+  process.env.RUNNER_DEBUG && console.log(...message);
+}
+
 const payloadJson = process.argv[2];
 const clientPayload =
   payloadJson && payloadJson !== "null" ? JSON.parse(payloadJson) : {};
@@ -19,6 +23,7 @@ function* getCronIterator(cronExpr, start_date, end_date = new Date()) {
   });
   let dt = interval.next()._date;
   while (dt < end_date) {
+    log(`Next execution: ${dt.toISOString()}`);
     yield dt;
     dt = interval.next()._date;
   }
@@ -54,7 +59,7 @@ if (clientPayload.procedure) {
     context.config.controls_directory,
     context.config.procedures_subdirectory
   )) {
-    console.log(`Evaluating procedure ${template.id}`);
+    log(`Evaluating procedure ${template.id}`);
     // Need dynamic placeholders before rendering in strict-mode
     const procedure = template.merge(template.generate_dynamic_placeholders());
     if (procedure.cron) {
@@ -65,10 +70,11 @@ if (clientPayload.procedure) {
           new Date(procedure.start_date), // Start date from metadata
           new Date(context.config.start_of_compliance), // Start date from env or config
         ]) ?? new Date();
+      log(`Starting from ${period_start_date.toISOString()}`);
 
-      const dates = getCronIterator(procedure.cron, period_start_date).take(
-        context.config.ticket_safety_limit
-      );
+      const all_dates = getCronIterator(procedure.cron, period_start_date);
+      log(all_dates);
+      const dates = all_dates.take(context.config.ticket_safety_limit);
       for (const exec_date of dates) {
         await ticketing.generateTicket(
           template.merge(clientPayload, exec_date)
