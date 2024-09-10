@@ -23,7 +23,6 @@ function* getCronIterator(cronExpr, start_date, end_date = new Date()) {
   });
   let dt = interval.next()._date;
   while (dt < end_date) {
-    log(`Next execution: ${dt.toISOString()}`);
     yield dt;
     dt = interval.next()._date;
   }
@@ -72,9 +71,9 @@ if (clientPayload.procedure) {
         ]) ?? new Date();
       log(`Starting from ${period_start_date.toISOString()}`);
 
-      const all_dates = getCronIterator(procedure.cron, period_start_date);
-      log(all_dates);
-      const dates = all_dates.take(context.config.ticket_safety_limit);
+      const dates = getCronIterator(procedure.cron, period_start_date).take(
+        context.config.ticket_safety_limit
+      );
       for (const exec_date of dates) {
         await ticketing.generateTicket(
           template.merge(clientPayload, exec_date)
