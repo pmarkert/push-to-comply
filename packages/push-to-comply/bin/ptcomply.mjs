@@ -49,6 +49,21 @@ TICKET_SAFETY_LIMIT, DRY_RUN, QUIET.
 
 const [command, ...rest] = process.argv.slice(2);
 
+// Commands that read program content must run from a content repo root.
+if (["build", "procedures", "gaps", "validate", "evidence"].includes(command)) {
+  const { existsSync } = await import("node:fs");
+  const contextDir = process.env.CONTEXT_DIRECTORY ?? "context";
+  const controlsDir = process.env.CONTROLS_DIRECTORY ?? "controls";
+  if (!existsSync(contextDir) || !existsSync(controlsDir)) {
+    console.error(
+      `This does not look like a compliance program repository (missing ` +
+        `"${contextDir}/" or "${controlsDir}/"). Run ptcomply ${command} from ` +
+        `the program root, or start one with: ptcomply init <dir>`
+    );
+    process.exit(1);
+  }
+}
+
 function printTemplates(templates) {
   templates.forEach((t, i) =>
     console.log(

@@ -25,6 +25,10 @@ repository root is the **content template** that organizations clone.
 | `packages/push-to-comply/defaults/`     | Default layouts and CSS/JS assets (a content repo overrides by filename)       |
 | `packages/push-to-comply/test/`         | Engine tests, self-contained against `test/fixtures/`                          |
 | `test/`                                 | Template integration tests (build the real content via the CLI)                |
+| `.claude/skills/`                       | Operating skills that ship with the program template                           |
+| `plugins/ptcomply/`                     | The published onboarding plugin (marketplace at `.claude-plugin/`)             |
+| `templates/evidence/`                   | Evidence-repository template (exported to its own repo on release)             |
+| `docs/`                                 | Architecture guides (evidence architecture, etc.)                              |
 
 ## Commands
 

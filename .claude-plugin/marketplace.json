@@ -1,0 +1,18 @@
+{
+  "name": "push-to-comply",
+  "owner": {
+    "name": "push-to-comply",
+    "url": "https://github.com/push-to-comply"
+  },
+  "plugins": [
+    {
+      "name": "ptcomply",
+      "description": "Set up and operate a push-to-comply compliance program: guided onboarding interview, template selection, and program scaffolding.",
+      "source": {
+        "source": "git-subdir",
+        "url": "github.com/push-to-comply/push-to-comply",
+        "path": "plugins/ptcomply"
+      }
+    }
+  ]
+}

@@ -318,6 +318,34 @@ GitHub provides a [workflow_dispatch](https://docs.github.com/en/actions/writing
 >
 > The procedure's ID is the subdirectory and filename without the markdown extension.
 
+## Working with AI Agents
+
+Agent support comes in three layers:
+
+1. **`AGENTS.md`** in every repo — ambient guidance any coding agent picks
+   up: layout, conventions, validation commands.
+2. **Operating skills in [.claude/skills/](.claude/skills/)** — they travel
+   with the program, so every clone is agent-ready: `add-policy` (author
+   documents that match real practice and map them correctly),
+   `map-controls` (gap analysis and mapping work from `gaps --json`), and
+   `run-procedure` (work a ticket, post evidence, never close it — closure
+   is the human sign-off). The evidence template ships its own set
+   (triage-inbox, draft-evidence, log-observation,
+   engagement-retrospective).
+3. **The `ptcomply` plugin** — a guided onboarding interview
+   (`setup-compliance-program`) that scaffolds a program, fills the
+   organization context, and tailors policies to what the organization
+   *actually does* before an auditor ever reads them. Install in Claude
+   Code with:
+
+   ```
+   /plugin marketplace add push-to-comply/push-to-comply
+   /plugin install ptcomply@push-to-comply
+   ```
+
+Procedures can additionally declare [`automation`](#automation-property-agent-executed-procedures)
+blocks so agents execute or assist with the recurring work itself.
+
 ## Evidence and Audit Engagements
 
 Audit engagements (SOC 2, customer assessments) run in **separate,
