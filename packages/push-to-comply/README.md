@@ -1,7 +1,7 @@
 # push-to-comply (engine)
 
 GRC meets DevOps — the engine behind
-[push-to-comply](https://github.com/pmarkert/push-to-comply): manage a
+[push-to-comply](https://github.com/push-to-comply/push-to-comply): manage a
 compliance program as git artifacts. Policies, narratives, and procedures are
 markdown documents mapped to compliance framework criteria (SOC 2 TSC,
 NIST 800-53 via OSCAL, or your own); this package renders the documentation
@@ -10,7 +10,7 @@ tickets.
 
 This package is the tooling only. Your compliance content lives in your own
 repository (start from the
-[template](https://github.com/pmarkert/push-to-comply)); run the `ptcomply`
+[template](https://github.com/push-to-comply/push-to-comply)); run the `ptcomply`
 CLI from its root:
 
 ```

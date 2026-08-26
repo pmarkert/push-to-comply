@@ -2,7 +2,7 @@
 //
 // Templates are ordinary git repositories — the engine embeds no content.
 // A curated list is published at a well-known location (templates.json on
-// the main branch of pmarkert/push-to-comply), but any repository works:
+// the main branch of push-to-comply/push-to-comply), but any repository works:
 // public, private (cloning uses the user's own git credentials/SSH), or a
 // local path. Anyone can build and share template repositories for
 // different standards or industries.
@@ -16,7 +16,7 @@ import yaml from "js-yaml";
 const execFile = promisify(child_process.execFile);
 
 export const DEFAULT_REGISTRY =
-  "https://raw.githubusercontent.com/pmarkert/push-to-comply/main/templates.json";
+  "https://raw.githubusercontent.com/push-to-comply/push-to-comply/main/templates.json";
 
 export async function fetchTemplateRegistry(
   url = process.env.PTC_TEMPLATE_REGISTRY ?? DEFAULT_REGISTRY

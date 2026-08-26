@@ -170,37 +170,45 @@ Three layers, matched to where knowledge is needed:
 - **`ptcomply init`** with the template-registry model as decided above;
   `templates.json` established at the well-known location.
 - **Agent-readiness groundwork:** `AGENTS.md` / `CLAUDE.md` in this repo.
+- **`ptcomply validate`:** satisfies mappings checked against known
+  standards and criterion ids (plus automation-block checks), wired into
+  CI — and it immediately caught five policies mapped to a nonexistent
+  TSC criterion (CC9.9), now corrected.
+- **Agent-executed procedures:** `automation` front-matter
+  (assist/execute), Agent Instructions ticket section with a
+  machine-readable marker, `automation:agent` label, an opt-in
+  claude-code-action workflow, a working Monthly Access Review example,
+  and the never-closes-its-own-ticket invariant in ticket text and
+  prompts.
+- **Evidence architecture shipped:** `docs/evidence-architecture.md`,
+  `ptcomply evidence coverage` (criteria without evidence, unknown
+  references, engagement filter, `--fail-on-missing`), and the evidence
+  template (`templates/evidence/`) with requests/inbox/evidence/
+  observations/runbooks and four agent skills.
+- **Three-layer agent enablement shipped:** operating skills in the
+  program template (`add-policy`, `map-controls`, `run-procedure`),
+  evidence-repo skills, and the `ptcomply` plugin
+  (`setup-compliance-program` onboarding interview with question-bank
+  references) behind a marketplace manifest.
+- **Release machinery:** URLs point at the `push-to-comply` org,
+  tag-triggered npm publish workflow, `scripts/export-repos.mjs`
+  (clean-history template exports, covered by tests), and RELEASING.md.
 
-## Next up
+## Next up (user-owned release steps — see RELEASING.md)
 
-1. **Publish the engine to npm** (`npm publish --workspace push-to-comply
-   --access public`) after a final tarball rehearsal, and create
-   `push-to-comply-template` (this root's content minus `packages/`,
-   dependency on the registry package), listed in `templates.json` and
-   marked as a GitHub template repository. Optionally automate the mirror
-   on each release.
-2. **Onboarding skill + first operating skills** (the three-layer plan
-   above), distributed via plugin marketplace; interview question banks as
-   progressively-loaded references.
-3. **Agent-executed procedures:** an `automation` front-matter block
-   (`mode: assist | execute`, `instructions`, expected `evidence`); the
-   scheduler renders instructions into the ticket and labels it
-   `automation:agent`; shipped workflow variants for the Claude GitHub app
-   and for `claude-code-action` with org-scoped secrets; any other runner
-   can key off the same label + structured body. Human sign-off invariant
-   applies.
-4. **Evidence architecture deliverables:** a reference-architecture doc
-   (two-repo topology, front-matter conventions, security posture:
-   private repo, no Pages, LFS for binaries, retention, minimal CI);
-   a `ptc-evidence-template` repository in the registry with runbook
-   stubs and the evidence skills; and `ptcomply evidence coverage
-   --evidence <path>` cross-referencing evidence `supports` declarations
-   against `compliance.json` to report criteria with no evidence this
-   engagement.
-5. **Mapping validation in CI:** fail the build when `satisfies`
-   references an unknown standard or criterion id, or a macro isn't
-   declared in `dynamic_fields` — catch mapping typos before an auditor
-   does.
+Everything below is prepared and rehearsed in-repo; what remains requires
+the org owner:
+
+1. Create the `push-to-comply` org repositories and push: the monorepo
+   (clean history via an orphan branch if desired), then the exported
+   `soc2-template` and `evidence-template` (`node scripts/export-repos.mjs`
+   generates them with fresh single-commit histories; mark both as GitHub
+   template repositories).
+2. Publish the engine to npm: `npm publish --workspace push-to-comply
+   --access public` locally, or set the `NPM_TOKEN` secret and push a
+   `v*` tag to trigger the release workflow.
+3. Verify the public paths (registry-driven `init`, plugin marketplace
+   install, clone-only CI) per RELEASING.md step 4.
 
 ## Near term
 

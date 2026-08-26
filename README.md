@@ -419,7 +419,7 @@ own automation (evidence collection scripts, account reviews, agents).
 The engine isn't on npm yet. To install and test it from this repository:
 
 ```
-git clone https://github.com/pmarkert/push-to-comply
+git clone https://github.com/push-to-comply/push-to-comply
 cd push-to-comply && npm install && npm test
 npm pack --workspace push-to-comply     # produces push-to-comply-<version>.tgz
 npm install -g ./push-to-comply-<version>.tgz

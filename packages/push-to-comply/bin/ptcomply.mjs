@@ -18,7 +18,7 @@ Commands:
                                     (omit to choose from the published registry)
                  --list             list registry templates and exit
                  --registry <url>   alternate registry (default: templates.json
-                                    on pmarkert/push-to-comply main)
+                                    on push-to-comply/push-to-comply main)
                  --name <name>      organization name for context/organization.yaml
                  --short-name <n>   organization short name
                  --skip-git         do not create a fresh git repository

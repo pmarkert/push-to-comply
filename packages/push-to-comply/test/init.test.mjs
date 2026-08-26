@@ -44,8 +44,8 @@ before(() => {
 
 test("resolveTemplateUrl expands owner/repo shorthand, passes URLs and paths through", () => {
   assert.equal(
-    resolveTemplateUrl("pmarkert/push-to-comply-template"),
-    "https://github.com/pmarkert/push-to-comply-template.git"
+    resolveTemplateUrl("push-to-comply/soc2-template"),
+    "https://github.com/push-to-comply/soc2-template.git"
   );
   assert.equal(
     resolveTemplateUrl("https://example.com/x.git"),

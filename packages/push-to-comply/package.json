@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pmarkert/push-to-comply.git",
+    "url": "git+https://github.com/push-to-comply/push-to-comply.git",
     "directory": "packages/ptcomply"
   },
   "license": "ISC",
