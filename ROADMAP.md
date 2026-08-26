@@ -1,77 +1,244 @@
-# push-to-comply Modernization Roadmap
+# push-to-comply Roadmap
 
-The original premise — compliance artifacts in git, reviews as pull requests,
-evidence as issue history — has aged remarkably well. It is exactly the shape
-that agentic tooling wants: plain text, structured metadata, an audit trail
-for free. This roadmap captures where to take the project next.
+The original premise — compliance artifacts in git, reviews as pull
+requests, evidence as issue history — has aged remarkably well. It is
+exactly the substrate that agentic tooling wants: plain text, structured
+metadata, an audit trail for free. This document records what has shipped,
+the decisions that shape the project, and what comes next.
 
-## Done (tranche 1)
+## Decisions
 
-- Fixed crashing bugs (manual procedure trigger, YAML standards loader,
-  cron-parser private API usage, broken `satisfies` → standard hyperlinks).
-- Test suite (`node:test`) + CI workflow; Node version pinned (22).
-- OSCAL catalog support: drop public-domain NIST catalogs (e.g. SP 800-53
-  rev5) into `standards/` as JSON.
-- `public/compliance.json` — machine-readable coverage snapshot with gap
-  lists, for agents and dashboards.
-- `AGENTS.md` / `CLAUDE.md` so coding agents can operate the repo correctly.
-- Offline-safe `DRY_RUN` mode for the scheduler.
-- Portal UI redesign: token-based stylesheet, light/dark, inline SVG icons
-  (no CDN), coverage cards/stat tiles/gap badges, print styles.
-- Engine/content split: the engine is now the `push-to-comply` npm package
-  (CLI `ptcomply`: `build`, `procedures`, `gaps`) under
-  `packages/push-to-comply`, carrying the default layouts/assets; the repo
-  root is the content template consuming it via npm workspaces. Next step:
-  publish to npm, then content repos depend on the registry package.
+These are settled and explain the shape of everything below.
+
+### Naming
+
+- **npm package: `push-to-comply`. CLI binary: `ptcomply`.** The package
+  keeps the project's brand; the binary is short, unambiguous, and free of
+  conflicts (`comply` and `complyctl` are already claimed by other tools in
+  or near this space). Package and bin names are independent in npm, so we
+  get both.
+
+### Standards data
+
+- **OSCAL is the strategic machine-readable format.** The OpenControl
+  schemas this project originally referenced are dormant; NIST OSCAL is
+  official, actively maintained, and its catalogs (SP 800-53 rev5 et al.)
+  are public domain — drop the JSON into `standards/` and it works.
+  opencontrol-style YAML/markdown standards remain supported.
+- **Licensing rules:** NIST publications are public domain and safe to
+  commit. The SOC 2 TSC is AICPA-copyrighted with no official
+  machine-readable form — ship paraphrased criterion summaries only
+  (as `standards/tsc-2017.md` does). No verbatim ISO 27001 or CIS text.
+
+### Engine vs. content
+
+- **The engine and the content are separate artifacts.** The engine is the
+  `push-to-comply` npm package (in `packages/push-to-comply`): renderer,
+  scheduler, OSCAL converter, `ptcomply` CLI, and the default
+  layouts/assets. A compliance program repository contains only content —
+  `controls/`, `standards/`, `context/`, branding — plus thin workflows
+  calling the CLI. Engine upgrades are a version bump, never a template
+  merge; a program's git history contains only compliance changes, which is
+  itself better audit evidence.
+- **Defaults with overlay:** layouts and assets ship inside the engine; a
+  content repo overrides any of them by creating a same-named file under
+  its own `layouts/` or `assets/`. Content repos need no layouts at all.
+- This repository is the monorepo: engine under `packages/`, and the root
+  is the reference content template, consuming the engine via npm
+  workspaces exactly as clients will consume the registry package.
+
+### Distribution and the template ecosystem
+
+- **Templates live in git, not in the CLI.** The engine embeds no
+  compliance content. `ptcomply init <dir>` scaffolds a new program by
+  cloning a **template repository** — any git repo with `controls/`,
+  `standards/`, `context/`. A curated registry is published at the
+  well-known location `templates.json` on this repo's main branch;
+  `--template` accepts owner/repo shorthand, any git URL, or a local path,
+  and private templates work automatically because cloning uses the user's
+  own git credentials. Third parties (consultants, industry groups) can
+  build and share templates — public or private — with no relationship to
+  this project beyond the content layout. Different templates can target
+  different standard sets.
+- **Three on-ramps, one artifact:** `ptcomply init` (personalized: fresh
+  history starting at the client's first commit, org context rewritten);
+  GitHub "Use this template" / plain clone for GitHub-centric teams; and
+  crucially, **clone-only operation is complete without local tooling** —
+  the bundled workflows install the engine in CI, so editing markdown in
+  the GitHub UI and merging PRs yields the portal, gap analysis, and
+  ticket scheduler. The locally-installed CLI adds preview, gap checks,
+  and a driver for the org's own automation (evidence collection, account
+  reviews, agents).
+- **Pre-publish testing:** the first npm publish happens only after the
+  full client journey has been rehearsed from a packed tarball —
+  `npm pack --workspace push-to-comply`, global install, `ptcomply init`
+  from a template, dependency installed from the tarball, `build` and
+  `gaps` green. This flow is documented in the README and exercised by
+  tests.
+
+### Evidence and assessments
+
+- **Evidence lives in separate, engagement-scoped repositories** (e.g.
+  `evidence-2026-soc2`), never in the program repo. Reasons: access
+  control is repo-granular and evidence (transcripts, emails, exports) is
+  far more sensitive than policies; retention policies require deleting
+  evidence, and git history can only forget by rewriting — which would
+  destroy the program repo's approval trail; engagements are annual while
+  the program is continuous, so evidence repos can be archived or purged
+  whole; and the program repo stays small and clonable forever.
+- **Conventional layout** for an evidence repo: `requests/` (auditor
+  request list with status front-matter), `inbox/` (raw dumps for agent
+  triage), `evidence/<id>/` (curated artifacts), `observations/` (gaps,
+  findings, remediations with status/owner/due front-matter), `runbooks/`
+  (org-specific collection instructions), plus `AGENTS.md` and agent
+  skills.
+- **One linking vocabulary:** evidence items declare what they support
+  with the same shape as `satisfies` — e.g.
+  `supports: {TSC: [CC6.1], controls: [policies/access]}` — plus
+  engagement, source, date, collector. This is what lets tooling cross
+  reference evidence against `compliance.json`.
+- **Observations bridge back to the program:** a finding graduates into
+  the content repo as a PR — a corrected policy or, better, a new `cron`
+  procedure. The goal of each engagement is to convert one-off evidence
+  hunts into scheduled procedures, so the ticket scheduler generates
+  dated, assigned, closed-with-artifacts evidence all year and the next
+  audit becomes mostly retrieval. The engagement-close retrospective
+  (promote painful requests to procedures, update runbooks) is a named
+  step.
+- **Scope boundary:** push-to-comply provides the conventions, an
+  evidence-repo template, the coverage crosswalk, and skills — never
+  auditor-portal or assessment-management logic. An org's own portal
+  integration (e.g. a local MCP server for their auditor's portal) plugs
+  in beside these conventions.
+
+### Agent enablement
+
+Three layers, matched to where knowledge is needed:
+
+1. **`AGENTS.md` in every repository** (program and evidence): ambient,
+   tool-agnostic guidance — layout, strict-Handlebars gotchas, licensing
+   rules, validation commands.
+2. **Operating skills shipped inside template repos** (`.claude/skills/`):
+   post-setup workflows — add-a-policy, map-controls, run-procedure,
+   quarterly-review; for evidence repos: triage-inbox, draft-evidence,
+   log-observation, engagement-retrospective. They version with the
+   content they describe, and template authors ship their own.
+3. **A published onboarding skill** distributed from this repo via a
+   plugin marketplace: triggers on "set up a compliance program", walks
+   template selection, runs `ptcomply init`, then conducts the interview —
+   org facts into `context/*.yaml`, per-policy question banks that edit
+   policies to match actual practice (never let aspirational boilerplate
+   through — auditors test what you wrote), narrative interviews — then
+   `build` + `gaps` and GitHub setup. Re-runs diff existing content
+   against the question bank to update a program.
+- Skills drive the `ptcomply` CLI directly; an MCP server comes later for
+  surfaces without a shell. **Invariant for agent-executed work: the agent
+  never closes its own ticket** — a human reviews posted evidence and
+  closes, so closure remains sign-off.
+
+## Shipped (this branch)
+
+- **Fixes and reliability:** manual procedure trigger crash (missing
+  import), YAML standards loader crash and wrong output path, broken
+  `satisfies` → standard hyperlinks (pages now also published under their
+  mapping key), cron-parser private API usage, markdown-extension regex,
+  Chromium-only `computedStyleMap`, Handlebars pre-escaping markdown
+  bodies (backticks/quotes never rendered), nonexistent JS handler on the
+  folder page, per-procedure failure isolation in the scheduler with a
+  failing exit code, scheduled tickets for procedures with
+  `dynamic_fields` no longer break strict rendering, offline-safe
+  `DRY_RUN`.
+- **Test suite and CI:** `node:test` suites for the engine (self-contained
+  against bundled fixtures, including CLI end-to-end) and template
+  integration; CI workflow; Node pinned to 22 (`.nvmrc`, workflows,
+  `engines`).
+- **OSCAL support:** drop NIST OSCAL JSON catalogs into `standards/`;
+  groups → families, enhancements included, withdrawn controls excluded,
+  organization-defined parameters rendered as readable labels. Verified
+  against the real SP 800-53 rev 5.2 catalog (1,014 criteria).
+- **Machine-readable outputs:** `public/compliance.json` — per-criterion
+  coverage, per-family stats, gap lists, full control index — plus
+  `ptcomply gaps [--standard] [--json] [--fail-on-gaps]` as a CI coverage
+  gate.
+- **Portal redesign:** token-based stylesheet (light/dark), validated
+  accessible palette (status always icon + label, never color alone),
+  inline SVG icons replacing the CDN icon font (private/air-gapped portals
+  render fully offline), standards coverage cards, stat tiles, family
+  meters, satisfied/gap badges, GitHub-style task lists, print styles.
+- **Engine/content split** as decided above, with the `ptcomply` CLI
+  (`init`, `build`, `procedures`, `gaps`, `version`).
+- **`ptcomply init`** with the template-registry model as decided above;
+  `templates.json` established at the well-known location.
+- **Agent-readiness groundwork:** `AGENTS.md` / `CLAUDE.md` in this repo.
+
+## Next up
+
+1. **Publish the engine to npm** (`npm publish --workspace push-to-comply
+   --access public`) after a final tarball rehearsal, and create
+   `push-to-comply-template` (this root's content minus `packages/`,
+   dependency on the registry package), listed in `templates.json` and
+   marked as a GitHub template repository. Optionally automate the mirror
+   on each release.
+2. **Onboarding skill + first operating skills** (the three-layer plan
+   above), distributed via plugin marketplace; interview question banks as
+   progressively-loaded references.
+3. **Agent-executed procedures:** an `automation` front-matter block
+   (`mode: assist | execute`, `instructions`, expected `evidence`); the
+   scheduler renders instructions into the ticket and labels it
+   `automation:agent`; shipped workflow variants for the Claude GitHub app
+   and for `claude-code-action` with org-scoped secrets; any other runner
+   can key off the same label + structured body. Human sign-off invariant
+   applies.
+4. **Evidence architecture deliverables:** a reference-architecture doc
+   (two-repo topology, front-matter conventions, security posture:
+   private repo, no Pages, LFS for binaries, retention, minimal CI);
+   a `ptc-evidence-template` repository in the registry with runbook
+   stubs and the evidence skills; and `ptcomply evidence coverage
+   --evidence <path>` cross-referencing evidence `supports` declarations
+   against `compliance.json` to report criteria with no evidence this
+   engagement.
+5. **Mapping validation in CI:** fail the build when `satisfies`
+   references an unknown standard or criterion id, or a macro isn't
+   declared in `dynamic_fields` — catch mapping typos before an auditor
+   does.
 
 ## Near term
 
-- `ptcomply init`: scaffold new programs from template repositories (no
-  content embedded in the engine) — curated registry in `templates.json`,
-  owner/repo shorthand, private repos via the user's git auth, local paths.
-  The full pre-publish client journey (global tarball install → init →
-  install → build/gaps) is exercised by tests and rehearsal.
-- **Publish the engine to npm** and create `push-to-comply-template` (the
-  root content minus `packages/`, dependency pointed at the registry),
-  listed in `templates.json`; optionally mirror it automatically on release.
-- **Schema validation**: validate front-matter (`satisfies` keys reference a
-  known standard, criteria ids exist, `dynamic_fields` declared for every
-  macro) as a test/CI step — catch mapping typos before an auditor does.
-- **Review metadata**: derive `approval_date`/`approver` from git/PR history
-  instead of hand-edited front-matter; render "last reviewed" and flag
-  stale documents (e.g. policies not reviewed in 12 months) as gaps.
-- **Procedure evidence linking**: close-the-loop check that each generated
-  ticket was closed with evidence attached; surface overdue/never-executed
-  procedures in compliance.json.
-- **Replace the browser PAT flow**: the "trigger procedure" form currently
-  stores a GitHub token in `localStorage`. Replace with a GitHub App or a
-  small OAuth device-flow helper.
+- **Review metadata from git:** derive `approval_date`/approver from PR
+  merge history instead of hand-edited front-matter; render "last
+  reviewed" and flag documents unreviewed for N months as gaps.
+- **Procedure evidence linking:** verify each generated ticket was closed
+  with evidence attached; surface overdue/never-executed procedures in
+  `compliance.json`.
+- **Replace the browser PAT flow:** the trigger-procedure form stores a
+  GitHub token in `localStorage`; replace with a GitHub App or
+  device-flow helper.
 
 ## Agentic direction
 
-- **MCP server** (`push-to-comply-mcp`): expose tools like
-  `list_gaps(standard)`, `get_control(id)`, `draft_policy(criteria)`,
-  `trigger_procedure(id, fields)`, `procedure_history(id)` over the same
-  code. Any MCP-capable agent (Claude, IDE agents, internal bots) can then
-  operate the compliance program conversationally.
-- **Agent-executed procedures**: extend procedure front-matter with an
-  `automation` property (e.g. a prompt + allowed tools). The scheduler
-  labels such tickets for an agent runner (GitHub Actions + Claude Code, or
-  Claude GitHub app) which executes the checklist, attaches evidence, and
-  leaves human sign-off as the closing act. Recurring evidence collection
-  (access reviews, log reviews, backup verification) is the killer use case.
-- **Drafting assistance**: seed prompts/workflows for "we adopted framework
-  X; draft the missing policies mapped to the gap list" — the gap list in
-  compliance.json is the natural input.
-- **Auditor Q&A**: the rendered portal plus compliance.json make a clean RAG
-  corpus; an auditor-facing agent can answer "show me the control and
-  evidence for CC6.1" with links.
+- **MCP server** (`ptcomply mcp`): `list_gaps`, `get_control`,
+  `draft_policy(criteria)`, `trigger_procedure`, `procedure_history` over
+  the existing lib API. Stdio-first — launched via `npx push-to-comply
+  mcp` with a checked-in `.mcp.json` in templates, so a fresh clone is
+  agent-ready with zero setup and zero hosting; a remote (streamable
+  HTTP) deployment stays an org-hosted option, consistent with the
+  non-SaaS model. Complements skills: skills carry procedure, MCP carries
+  actions for shell-less surfaces (e.g. claude.ai chat).
+- **Drafting assistance:** "we adopted framework X; draft the missing
+  policies mapped to the gap list" — the `gaps --json` output is the
+  natural input.
+- **Auditor Q&A:** the portal plus `compliance.json` (plus evidence-repo
+  conventions) make a clean corpus for an auditor-facing agent answering
+  "show me the control and evidence for CC6.1" with links.
 
 ## Later
 
 - Additional ticket adapters (Jira, Linear) via the existing adapter seam.
-- Additional OSCAL artifacts: import profiles/baselines (Low/Moderate/High),
-  export an OSCAL SSP or component-definition generated from the controls.
-- Multi-framework cross-walks (one control satisfying TSC + 800-53 + CSF via
-  published mapping tables, e.g. NIST CPRT exports).
-- PDF export of the portal for auditors who want a binder.
+- Additional OSCAL artifacts: import profiles/baselines (Low/Moderate/
+  High); export an OSCAL SSP or component definition generated from the
+  controls.
+- Multi-framework cross-walks (one control satisfying TSC + 800-53 + CSF
+  via published mapping tables, e.g. NIST CPRT exports).
+- Portal extras, all still static: client-side search (Pagefind), a
+  dashboard page fed by `compliance.json`, PDF binder export for
+  auditors.
