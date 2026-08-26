@@ -1,0 +1,10 @@
+{
+  "name": "ptcomply",
+  "description": "Guided setup and onboarding for push-to-comply compliance programs (policies, narratives, and procedures as git artifacts mapped to framework criteria).",
+  "version": "0.1.0",
+  "author": {
+    "name": "push-to-comply"
+  },
+  "homepage": "https://github.com/push-to-comply/push-to-comply",
+  "license": "ISC"
+}

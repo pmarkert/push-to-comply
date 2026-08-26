@@ -67,9 +67,14 @@ push-to-comply procedures can be manually triggered/invoked using secure API cal
 
 ## Standards
 
-Standards represent industry accepted best practices and rule-sets for achieving compliance. Standards definitions are based on [opencontrol schemas](https://github.com/opencontrol/standards). Opencontrol standards may be placed into the [standards/] folder as-is with a `.yaml` extension.
+Standards represent industry accepted best practices and rule-sets for achieving compliance. Standard definitions can be provided in three formats, all placed in the [standards/](standards/) folder:
 
-Standards may also be enhanced as markdown files. The opencontrol data should be placed under the `standard` property. A top-level `name` or `description` property may be used to provide a friendly display name for the standard. The markdown body of the file may be used to provide explanatory text or narrative about the standard.
+1. **OSCAL catalogs (`.json`)** — [NIST OSCAL](https://pages.nist.gov/OSCAL/) is the official, actively maintained machine-readable format for control catalogs. Drop a catalog file (e.g. the public-domain [NIST SP 800-53 rev5 catalog](https://github.com/usnistgov/oscal-content/tree/main/nist.gov/SP800-53/rev5/json)) into `standards/` and it is automatically converted: groups become criterion families, controls and their enhancements become criteria, withdrawn controls are excluded, and organization-defined parameters are rendered as readable labels. The filename (without `.json`) is the mapping key controls use in their `satisfies` metadata — name the file `NIST-800-53.json` and map controls with `NIST-800-53: [AC-1]`.
+2. **opencontrol-style YAML (`.yaml`)** — based on the legacy [opencontrol schemas](https://github.com/opencontrol/standards). The OpenControl project is dormant; existing YAML standards still work, but OSCAL is the recommended source for new framework data.
+3. **Markdown (`.md`)** — an opencontrol-style standard placed under a `standard` front-matter property, with a markdown body providing narrative about the standard. A top-level `name` or `description` property provides a friendly display name. The bundled [standards/tsc-2017.md](standards/tsc-2017.md) is an example: paraphrased summaries of the SOC 2 Trust Services Criteria.
+
+> [!NOTE]
+> **Licensing:** NIST publications (SP 800-53, CSF 2.0, etc.) are public domain and safe to commit. The SOC 2 Trust Services Criteria are copyrighted by the AICPA and are not offered in an official machine-readable form — use paraphrased criterion summaries (as this repository does) rather than verbatim text. ISO 27001 and CIS Controls likewise carry licenses that prohibit redistribution of the full control text.
 
 ## Controls
 
@@ -178,6 +183,39 @@ The scheduler uses the most recent of the following dates to determine the ticke
 >
 > The rendered compliance portal provides human-readable descriptions of each procedure's schedule. This can be helpful when troubleshooting a schedule.
 
+#### `automation` property (agent-executed procedures)
+
+Procedures may declare an `automation` block to let an AI agent perform or
+assist with the work:
+
+```yaml
+automation:
+  mode: assist # gather/draft evidence only (default); "execute" performs the actions
+  instructions: |
+    Export the org member list, compare against the roster, and post a
+    table of discrepancies as a comment on this ticket.
+  evidence:
+    - Comment with the comparison table
+```
+
+Tickets for such procedures gain an **Agent Instructions** section (with a
+machine-readable `<!-- ptcomply:automation ... -->` marker) and the
+`automation:agent` label. Any runner can act on that contract:
+
+- The bundled [.github/workflows/agent_procedures.yaml](.github/workflows/agent_procedures.yaml)
+  workflow runs Claude against newly-labeled tickets. It is inert until you
+  add an `ANTHROPIC_API_KEY` secret and set the repository variable
+  `ENABLE_AGENT_PROCEDURES=true`.
+- With the Claude GitHub app installed, a human can simply comment
+  `@claude please execute the Agent Instructions` on the ticket.
+- Any other bot or agent can key off the label and the marker.
+
+Whatever the runner, the invariant holds: **the agent never closes the
+ticket.** It posts findings and evidence as comments; a human assignee
+reviews and closes, so ticket closure remains the human sign-off your audit
+trail needs. See [controls/procedures/access_review.md](controls/procedures/access_review.md)
+for a working example.
+
 #### `dynamic_fields` property
 
 Dynamic fields may be used in procedure templates to customize the generated ticket with replacement values specific to each instance in which the procedure is being triggered. Replacement values for these dynamic fields must be specified when calling the API to trigger the procedure see [Triggering on-demand Procedures](#triggering-on-demand-procedures).
@@ -279,6 +317,126 @@ GitHub provides a [workflow_dispatch](https://docs.github.com/en/actions/writing
 > [!NOTE]
 >
 > The procedure's ID is the subdirectory and filename without the markdown extension.
+
+## Working with AI Agents
+
+Agent support comes in three layers:
+
+1. **`AGENTS.md`** in every repo — ambient guidance any coding agent picks
+   up: layout, conventions, validation commands.
+2. **Operating skills in [.claude/skills/](.claude/skills/)** — they travel
+   with the program, so every clone is agent-ready: `add-policy` (author
+   documents that match real practice and map them correctly),
+   `map-controls` (gap analysis and mapping work from `gaps --json`), and
+   `run-procedure` (work a ticket, post evidence, never close it — closure
+   is the human sign-off). The evidence template ships its own set
+   (triage-inbox, draft-evidence, log-observation,
+   engagement-retrospective).
+3. **The `ptcomply` plugin** — a guided onboarding interview
+   (`setup-compliance-program`) that scaffolds a program, fills the
+   organization context, and tailors policies to what the organization
+   *actually does* before an auditor ever reads them. Install in Claude
+   Code with:
+
+   ```
+   /plugin marketplace add push-to-comply/push-to-comply
+   /plugin install ptcomply@push-to-comply
+   ```
+
+Procedures can additionally declare [`automation`](#automation-property-agent-executed-procedures)
+blocks so agents execute or assist with the recurring work itself.
+
+## Evidence and Audit Engagements
+
+Audit engagements (SOC 2, customer assessments) run in **separate,
+engagement-scoped evidence repositories** — never in this repo — linked
+back to the program by front-matter (`supports:` mirrors `satisfies:`).
+Start one from the evidence template (`ptcomply init evidence-2026-soc2`
+choosing the evidence template), and check what still needs evidence with:
+
+```
+ptcomply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--fail-on-missing]
+```
+
+See [docs/evidence-architecture.md](docs/evidence-architecture.md) for the
+full architecture: why evidence is separate, the repository layout, the
+observation → procedure flywheel, and how agents fit.
+
+## Machine-Readable Compliance Snapshot
+
+Every site build also writes `public/compliance.json`: a full snapshot of the compliance program designed for automation and AI agents. It includes each standard with per-criterion coverage (which controls satisfy it), per-family statistics, an `unsatisfied` gap list, and an index of every control with its metadata (owner, version, approval date, schedule, mappings). Dashboards, auditors' tooling, or an agent asked "where are our gaps against 800-53?" can consume this file directly instead of scraping HTML.
+
+## Architecture: engine vs. content
+
+The project is split into two parts:
+
+- **The `push-to-comply` engine** (npm package, in [packages/push-to-comply/](packages/push-to-comply/)): all executable tooling — the site renderer, the ticket scheduler, the OSCAL converter, and the default layouts/assets — exposed as the `ptcomply` CLI:
+
+  ```
+  ptcomply build         # render the portal + compliance.json
+  ptcomply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
+  ptcomply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
+  ```
+
+- **This repository's root: the content template** that organizations clone — `controls/`, `standards/`, `context/`, branding assets, and thin GitHub workflows that call the CLI. The root consumes the engine through an npm workspace today, exactly as clients will consume it from the npm registry once published; engine upgrades then become a version bump instead of merging template history.
+
+Layouts and CSS/JS assets ship inside the engine as defaults. A content repository can override any of them by creating a file of the same name under its own `layouts/` or `assets/` directory (branding files like `assets/logo.svg` are the common case).
+
+## Starting a new program: `ptcomply init` and template repositories
+
+The engine embeds no compliance content. New programs start from **template
+repositories** — ordinary git repositories containing `controls/`,
+`standards/`, and `context/`:
+
+```
+ptcomply init my-compliance-program                          # choose from the published registry
+ptcomply init my-program --template acme/soc2-hipaa-template # any GitHub repo (owner/repo shorthand)
+ptcomply init my-program --template git@github.com:me/private-template.git
+ptcomply init my-program --template ../local-template        # local path
+```
+
+`init` clones the template with *your* git credentials (so private templates
+work), strips the template's history, optionally personalizes
+`context/organization.yaml` (`--name`, `--short-name`), and creates a fresh
+repository with an initial commit — your program's history starts at *your*
+first commit, which matters when PR history is audit evidence.
+
+The curated registry lives at [templates.json](templates.json) on this
+repository's main branch (`ptcomply init --list` shows it; `--registry`
+points elsewhere). Anyone can build and share template repositories —
+different standards, industries, or a consultancy's private starting point —
+and they need no relationship to this project beyond the content layout.
+
+Prefer zero local tooling? Cloning (or "Use this template"-ing) a template
+repository works on its own: the bundled GitHub workflows install the engine
+in CI, so editing markdown through the GitHub UI and merging PRs is a
+complete workflow — the portal, gap analysis, and ticket scheduler all run
+in Actions. The CLI adds local preview, gap checks, and a driver for your
+own automation (evidence collection scripts, account reviews, agents).
+
+## Trying it out before the npm release
+
+The engine isn't on npm yet. To install and test it from this repository:
+
+```
+git clone https://github.com/push-to-comply/push-to-comply
+cd push-to-comply && npm install && npm test
+npm pack --workspace push-to-comply     # produces push-to-comply-<version>.tgz
+npm install -g ./push-to-comply-<version>.tgz
+ptcomply version
+```
+
+Inside a scaffolded program, point the dependency at the tarball until the
+registry package exists: `npm install /path/to/push-to-comply-<version>.tgz`.
+(For engine development, `npm link` from `packages/push-to-comply` works
+too.)
+
+## Development
+
+- Requires Node.js 22+ (see `.nvmrc`).
+- `npm test` runs the engine's test suite (against bundled fixtures) and the template's integration tests (`node:test`, no extra dev dependencies). CI runs tests and a site build on every push and pull request.
+- `ptcomply procedures --dry-run` evaluates the ticket scheduler without creating issues and works offline.
+- See [AGENTS.md](AGENTS.md) for a repository guide aimed at both human contributors and AI coding agents.
 
 ## Options for documentation website publishing:
 

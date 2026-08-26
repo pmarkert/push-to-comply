@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "note": "Registry of recommended push-to-comply template repositories. `ptcomply init` reads this file from the main branch of push-to-comply/push-to-comply. Anyone can build a compatible template repository (any git repo with controls/, standards/, and context/ directories) and use it via `ptcomply init <dir> --template <repo>`; open a pull request to list a public template here.",
+  "templates": [
+    {
+      "name": "soc2-starter",
+      "kind": "program",
+      "description": "SOC 2 starter program: policies, narratives, and recurring procedures mapped to the 2017 Trust Services Criteria (paraphrased summaries).",
+      "repository": "push-to-comply/soc2-template",
+      "standards": ["TSC"]
+    },
+    {
+      "name": "evidence",
+      "kind": "evidence",
+      "description": "Engagement-scoped evidence repository: auditor requests, inbox triage, curated evidence linked to criteria via `supports`, observations, runbooks, and agent skills.",
+      "repository": "push-to-comply/evidence-template",
+      "standards": []
+    }
+  ]
+}

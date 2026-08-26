@@ -15,16 +15,18 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v4.0.3
+        with:
+          node-version: "22"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate HTML files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
-        run: npm run build
+        run: npx ptcomply build
 
       - name: Build GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3.0.1

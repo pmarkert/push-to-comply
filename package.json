@@ -1,26 +1,26 @@
 {
-  "name": "imply",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf public",
-    "build": "node .github/actions/render_site.mjs",
-    "procedures": "node .github/actions/generate_tickets.mjs",
-    "serve": "npx live-server -q public",
-    "watch": "npx nodemon --ext '*' --watch .github/actions --watch . --ignore public --exec 'npm run build' & npm run serve"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "name": "push-to-comply-template",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Template compliance program repository for push-to-comply. Clone this, replace the content with your organization's policies, narratives, and procedures, and the ptcomply engine does the rest.",
+  "workspaces": [
+    "packages/push-to-comply"
+  ],
   "dependencies": {
-    "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
-    "@octokit/rest": "^21.0.2",
-    "cron-parser": "^4.9.0",
-    "cronstrue": "^2.50.0",
-    "handlebars": "^4.7.8",
-    "js-yaml": "^4.1.0",
-    "luxon": "^3.5.0",
-    "markdown-it": "^14.1.0"
+    "push-to-comply": "^0.1.0"
+  },
+  "scripts": {
+    "test": "npm test --workspaces && node --test test/*.test.mjs",
+    "clean": "rm -rf public",
+    "build": "ptcomply build",
+    "procedures": "ptcomply procedures",
+    "gaps": "ptcomply gaps",
+    "serve": "npx live-server -q public",
+    "watch": "npx nodemon --ext '*' --watch packages --watch . --ignore public --exec 'npm run build' & npm run serve"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
   }
 }

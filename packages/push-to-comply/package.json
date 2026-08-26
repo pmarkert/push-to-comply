@@ -1,0 +1,42 @@
+{
+  "name": "push-to-comply",
+  "version": "0.1.0",
+  "description": "The push-to-comply engine: render compliance programs (policies, narratives, procedures mapped to framework criteria) from git artifacts, and schedule recurring procedure tickets.",
+  "type": "module",
+  "bin": {
+    "ptcomply": "bin/ptcomply.mjs"
+  },
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./lib/*": "./lib/*",
+    "./bin/*": "./bin/*"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "defaults"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/push-to-comply/push-to-comply.git",
+    "directory": "packages/ptcomply"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
+    "@octokit/rest": "^21.0.2",
+    "cron-parser": "^4.9.0",
+    "cronstrue": "^2.50.0",
+    "handlebars": "^4.7.8",
+    "js-yaml": "^4.1.0",
+    "luxon": "^3.5.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-task-lists": "^2.1.1"
+  }
+}
