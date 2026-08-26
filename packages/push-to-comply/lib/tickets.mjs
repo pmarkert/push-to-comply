@@ -12,6 +12,69 @@ import { getCronIterator, mostRecentValidDate } from "./scheduler.mjs";
 
 const execFile_promised = promisify(child_process.execFile);
 
+export const AUTOMATION_LABEL = "automation:agent";
+export const AUTOMATION_MODES = ["assist", "execute"];
+
+// Procedures may declare an `automation` block in front-matter:
+//
+//   automation:
+//     mode: assist            # gather/draft evidence only (default)
+//     # mode: execute         # actually perform the listed actions
+//     instructions: |
+//       ...prompt for the agent...
+//     evidence:
+//       - what the agent should attach
+//
+// Tickets for such procedures get an "Agent Instructions" section with a
+// machine-readable marker and the automation label, so any runner (the
+// Claude GitHub app, a claude-code-action workflow, or an org's own bot)
+// can pick them up. The agent NEVER closes the ticket: a human reviews the
+// posted evidence and closes it, so closure remains the sign-off.
+export function applyAutomation(procedure) {
+  const automation = procedure.automation;
+  if (!automation) {
+    return procedure;
+  }
+  const mode = automation.mode ?? "assist";
+  if (!AUTOMATION_MODES.includes(mode)) {
+    throw new Error(
+      `${procedure.id}: automation.mode must be one of ${AUTOMATION_MODES.join(", ")} (got "${mode}")`
+    );
+  }
+  const section = [
+    "",
+    "---",
+    "",
+    `<!-- ptcomply:automation mode="${mode}" procedure="${procedure.id}" -->`,
+    "## Agent Instructions",
+    "",
+    mode === "assist"
+      ? "_Automation mode: **assist** — gather information and draft evidence only; take no actions that change systems._"
+      : "_Automation mode: **execute** — perform the actions below._",
+    "",
+    "An agent may perform this work and post its findings and evidence as" +
+      " comments. The agent must **never close this ticket** — a human" +
+      " assignee reviews the evidence and closes it as sign-off.",
+    "",
+    automation.instructions ?? "",
+    ...(automation.evidence?.length
+      ? [
+          "### Expected evidence",
+          "",
+          ...automation.evidence.map((item) => `- ${item}`),
+        ]
+      : []),
+  ].join("\n");
+  return {
+    ...procedure,
+    body: `${procedure.body}\n${section}`,
+    github: {
+      ...procedure.github,
+      labels: [procedure.github?.labels ?? [], AUTOMATION_LABEL].flat(),
+    },
+  };
+}
+
 function log(...message) {
   process.env.RUNNER_DEBUG && console.log(...message);
 }
@@ -51,9 +114,11 @@ async function generateScheduledTickets(ticketing, context, template, clientPayl
     // Scheduled runs render dynamic fields as visible placeholders, but real
     // date-context values, for the moment at which the ticket was due.
     await ticketing.generateTicket(
-      template.merge(
-        { ...template.dynamic_field_placeholders(), ...clientPayload },
-        DateTime.fromJSDate(exec_date)
+      applyAutomation(
+        template.merge(
+          { ...template.dynamic_field_placeholders(), ...clientPayload },
+          DateTime.fromJSDate(exec_date)
+        )
       )
     );
   }
@@ -73,7 +138,7 @@ export async function runProcedures(clientPayload = {}) {
       ),
       clientPayload.procedure
     );
-    await ticketing.generateTicket(template.merge(clientPayload));
+    await ticketing.generateTicket(applyAutomation(template.merge(clientPayload)));
     return [];
   }
 

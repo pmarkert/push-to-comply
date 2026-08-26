@@ -6,6 +6,7 @@
 
 import templates from "./templates.mjs";
 import { loadControls, loadStandards } from "./content.mjs";
+import { AUTOMATION_MODES } from "./tickets.mjs";
 
 export function validateContent(context = templates.mergeContext()) {
   const errors = [];
@@ -57,6 +58,22 @@ export function validateContent(context = templates.mergeContext()) {
           );
         }
       }
+    }
+  }
+
+  for (const control of controls) {
+    const automation = control.automation;
+    if (!automation) continue;
+    if (control.type !== "procedure") {
+      errors.push(`${control.id}: automation is only valid on procedures`);
+    }
+    if (automation.mode && !AUTOMATION_MODES.includes(automation.mode)) {
+      errors.push(
+        `${control.id}: automation.mode must be one of ${AUTOMATION_MODES.join(", ")} (got "${automation.mode}")`
+      );
+    }
+    if (!automation.instructions) {
+      errors.push(`${control.id}: automation requires instructions`);
     }
   }
 

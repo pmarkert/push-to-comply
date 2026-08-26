@@ -1,0 +1,52 @@
+# Runs an AI agent against procedure tickets that carry the
+# "automation:agent" label (procedures with an `automation` block in their
+# front-matter). Disabled until you opt in:
+#
+#   1. Add an ANTHROPIC_API_KEY secret to the repository.
+#   2. Create a repository variable ENABLE_AGENT_PROCEDURES = "true".
+#
+# Alternative (no workflow needed): install the Claude GitHub app and have a
+# human comment "@claude please execute the Agent Instructions" on a ticket.
+#
+# The agent posts findings/evidence as comments and NEVER closes the ticket —
+# a human assignee reviews the evidence and closes it as sign-off.
+
+name: Agent Procedures
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  run-agent:
+    if: github.event.label.name == 'automation:agent' && vars.ENABLE_AGENT_PROCEDURES == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Execute the procedure's agent instructions
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are executing an automated compliance procedure ticket.
+
+            Read issue #${{ github.event.issue.number }} in ${{ github.repository }}
+            (use `gh issue view ${{ github.event.issue.number }} --comments`).
+            Follow its "Agent Instructions" section. Respect the declared mode:
+            "assist" means gather information and draft evidence only — take no
+            actions that change systems; "execute" means perform the listed
+            actions.
+
+            Post your findings and evidence as a comment on the issue with
+            `gh issue comment`. If you cannot complete the instructions, post a
+            comment explaining exactly what is missing.
+
+            NEVER close the issue. A human assignee reviews the evidence and
+            closes it as sign-off.
+          claude_args: '--allowedTools "Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh api:*),Read,Grep,Glob"'

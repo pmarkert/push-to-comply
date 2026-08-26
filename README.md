@@ -183,6 +183,39 @@ The scheduler uses the most recent of the following dates to determine the ticke
 >
 > The rendered compliance portal provides human-readable descriptions of each procedure's schedule. This can be helpful when troubleshooting a schedule.
 
+#### `automation` property (agent-executed procedures)
+
+Procedures may declare an `automation` block to let an AI agent perform or
+assist with the work:
+
+```yaml
+automation:
+  mode: assist # gather/draft evidence only (default); "execute" performs the actions
+  instructions: |
+    Export the org member list, compare against the roster, and post a
+    table of discrepancies as a comment on this ticket.
+  evidence:
+    - Comment with the comparison table
+```
+
+Tickets for such procedures gain an **Agent Instructions** section (with a
+machine-readable `<!-- ptcomply:automation ... -->` marker) and the
+`automation:agent` label. Any runner can act on that contract:
+
+- The bundled [.github/workflows/agent_procedures.yaml](.github/workflows/agent_procedures.yaml)
+  workflow runs Claude against newly-labeled tickets. It is inert until you
+  add an `ANTHROPIC_API_KEY` secret and set the repository variable
+  `ENABLE_AGENT_PROCEDURES=true`.
+- With the Claude GitHub app installed, a human can simply comment
+  `@claude please execute the Agent Instructions` on the ticket.
+- Any other bot or agent can key off the label and the marker.
+
+Whatever the runner, the invariant holds: **the agent never closes the
+ticket.** It posts findings and evidence as comments; a human assignee
+reviews and closes, so ticket closure remains the human sign-off your audit
+trail needs. See [controls/procedures/access_review.md](controls/procedures/access_review.md)
+for a working example.
+
 #### `dynamic_fields` property
 
 Dynamic fields may be used in procedure templates to customize the generated ticket with replacement values specific to each instance in which the procedure is being triggered. Replacement values for these dynamic fields must be specified when calling the API to trigger the procedure see [Triggering on-demand Procedures](#triggering-on-demand-procedures).

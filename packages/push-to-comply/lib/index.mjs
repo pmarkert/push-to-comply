@@ -1,5 +1,10 @@
 export { buildSite } from "./site.mjs";
-export { runProcedures } from "./tickets.mjs";
+export {
+  runProcedures,
+  applyAutomation,
+  AUTOMATION_LABEL,
+  AUTOMATION_MODES,
+} from "./tickets.mjs";
 export {
   loadControls,
   loadStandards,
