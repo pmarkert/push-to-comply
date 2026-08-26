@@ -289,11 +289,27 @@ GitHub provides a [workflow_dispatch](https://docs.github.com/en/actions/writing
 
 Every site build also writes `public/compliance.json`: a full snapshot of the compliance program designed for automation and AI agents. It includes each standard with per-criterion coverage (which controls satisfy it), per-family statistics, an `unsatisfied` gap list, and an index of every control with its metadata (owner, version, approval date, schedule, mappings). Dashboards, auditors' tooling, or an agent asked "where are our gaps against 800-53?" can consume this file directly instead of scraping HTML.
 
+## Architecture: engine vs. content
+
+The project is split into two parts:
+
+- **The `push-to-comply` engine** (npm package, in [packages/push-to-comply/](packages/push-to-comply/)): all executable tooling — the site renderer, the ticket scheduler, the OSCAL converter, and the default layouts/assets — exposed as the `ptcomply` CLI:
+
+  ```
+  ptcomply build         # render the portal + compliance.json
+  ptcomply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
+  ptcomply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
+  ```
+
+- **This repository's root: the content template** that organizations clone — `controls/`, `standards/`, `context/`, branding assets, and thin GitHub workflows that call the CLI. The root consumes the engine through an npm workspace today, exactly as clients will consume it from the npm registry once published; engine upgrades then become a version bump instead of merging template history.
+
+Layouts and CSS/JS assets ship inside the engine as defaults. A content repository can override any of them by creating a file of the same name under its own `layouts/` or `assets/` directory (branding files like `assets/logo.svg` are the common case).
+
 ## Development
 
 - Requires Node.js 22+ (see `.nvmrc`).
-- `npm test` runs the test suite (built on `node:test`, no extra dependencies). CI runs tests and a site build on every push and pull request.
-- `DRY_RUN=1 npm run procedures` evaluates the ticket scheduler without creating issues and works offline.
+- `npm test` runs the engine's test suite (against bundled fixtures) and the template's integration tests (`node:test`, no extra dev dependencies). CI runs tests and a site build on every push and pull request.
+- `ptcomply procedures --dry-run` evaluates the ticket scheduler without creating issues and works offline.
 - See [AGENTS.md](AGENTS.md) for a repository guide aimed at both human contributors and AI coding agents.
 
 ## Options for documentation website publishing:

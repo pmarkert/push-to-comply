@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { convertOscalCatalog } from "../.github/actions/oscal.mjs";
+import { convertOscalCatalog } from "../lib/oscal.mjs";
 
 const fixture = {
   catalog: {

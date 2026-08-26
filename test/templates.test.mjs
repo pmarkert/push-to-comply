@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DateTime } from "luxon";
-import templates from "../.github/actions/templates.mjs";
+import templates from "push-to-comply/lib/templates.mjs";
 
 // These tests run from the repository root and exercise the real content in
 // controls/ and context/.

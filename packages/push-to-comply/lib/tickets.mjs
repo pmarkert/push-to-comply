@@ -1,23 +1,20 @@
+// Evaluates procedure schedules and generates tickets via the ticketing
+// adapter. A manual trigger (clientPayload.procedure) processes only that
+// procedure; a scheduled run processes every procedure with a cron property.
+
 import path from "path";
+import { promisify } from "util";
+import child_process from "child_process";
+import { DateTime } from "luxon";
 import templates from "./templates.mjs";
 import GitHubIssuesAdapter from "./GitHubIssuesAdapter.mjs";
 import { getCronIterator, mostRecentValidDate } from "./scheduler.mjs";
-import { DateTime } from "luxon";
-import { promisify } from "util";
-import child_process from "child_process";
 
 const execFile_promised = promisify(child_process.execFile);
 
 function log(...message) {
   process.env.RUNNER_DEBUG && console.log(...message);
 }
-
-const payloadJson = process.argv[2];
-const clientPayload =
-  payloadJson && payloadJson !== "null" ? JSON.parse(payloadJson) : {};
-const context = templates.mergeContext(clientPayload);
-
-const ticketing = new GitHubIssuesAdapter(context);
 
 const getFileCommitDate = async (filename) => {
   const { stdout } = await execFile_promised("git", [
@@ -31,7 +28,7 @@ const getFileCommitDate = async (filename) => {
   return new Date(stdout.trim().split("\n").pop());
 };
 
-async function generateScheduledTickets(template) {
+async function generateScheduledTickets(ticketing, context, template, clientPayload) {
   log(`Evaluating procedure ${template.id}`);
   // Need dynamic placeholders before rendering in strict-mode
   const procedure = template.merge(template.generate_dynamic_placeholders());
@@ -62,18 +59,24 @@ async function generateScheduledTickets(template) {
   }
 }
 
-if (clientPayload.procedure) {
-  // Manual trigger: only process the specified procedure
-  const template = templates.loadTemplate(
-    path.join(
-      context.config.controls_directory,
-      context.config.procedures_subdirectory
-    ),
-    clientPayload.procedure
-  );
-  const procedure = template.merge(clientPayload);
-  await ticketing.generateTicket(procedure);
-} else {
+// Returns the ids of procedures that failed (empty array on success).
+export async function runProcedures(clientPayload = {}) {
+  const context = templates.mergeContext(clientPayload);
+  const ticketing = new GitHubIssuesAdapter(context);
+
+  if (clientPayload.procedure) {
+    // Manual trigger: only process the specified procedure
+    const template = templates.loadTemplate(
+      path.join(
+        context.config.controls_directory,
+        context.config.procedures_subdirectory
+      ),
+      clientPayload.procedure
+    );
+    await ticketing.generateTicket(template.merge(clientPayload));
+    return [];
+  }
+
   // Scheduled run: process all templates with a cron schedule.
   // A failure in one procedure must not block the others.
   const failures = [];
@@ -82,14 +85,11 @@ if (clientPayload.procedure) {
     context.config.procedures_subdirectory
   )) {
     try {
-      await generateScheduledTickets(template);
+      await generateScheduledTickets(ticketing, context, template, clientPayload);
     } catch (error) {
       console.error(`Failed to process procedure ${template.id}:`, error);
       failures.push(template.id);
     }
   }
-  if (failures.length) {
-    console.error(`${failures.length} procedure(s) failed:`, failures);
-    process.exitCode = 1;
-  }
+  return failures;
 }

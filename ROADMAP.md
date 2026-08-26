@@ -16,12 +16,19 @@ for free. This roadmap captures where to take the project next.
   lists, for agents and dashboards.
 - `AGENTS.md` / `CLAUDE.md` so coding agents can operate the repo correctly.
 - Offline-safe `DRY_RUN` mode for the scheduler.
+- Portal UI redesign: token-based stylesheet, light/dark, inline SVG icons
+  (no CDN), coverage cards/stat tiles/gap badges, print styles.
+- Engine/content split: the engine is now the `push-to-comply` npm package
+  (CLI `ptcomply`: `build`, `procedures`, `gaps`) under
+  `packages/push-to-comply`, carrying the default layouts/assets; the repo
+  root is the content template consuming it via npm workspaces. Next step:
+  publish to npm, then content repos depend on the registry package.
 
 ## Near term
 
-- **Gap console**: `npm run gaps` CLI that prints unsatisfied criteria per
-  standard (data already in compliance.json) with non-zero exit for CI
-  "coverage gates".
+- **Publish the engine to npm** and switch the template's dependency from
+  the workspace to the registry; optionally split the template into its own
+  repository at that point.
 - **Schema validation**: validate front-matter (`satisfies` keys reference a
   known standard, criteria ids exist, `dynamic_fields` declared for every
   macro) as a test/CI step — catch mapping typos before an auditor does.

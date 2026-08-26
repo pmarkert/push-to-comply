@@ -1,29 +1,26 @@
 {
-  "name": "push-to-comply",
-  "version": "1.1.0",
+  "name": "push-to-comply-template",
+  "private": true,
+  "version": "2.0.0",
   "type": "module",
+  "description": "Template compliance program repository for push-to-comply. Clone this, replace the content with your organization's policies, narratives, and procedures, and the ptcomply engine does the rest.",
+  "workspaces": [
+    "packages/push-to-comply"
+  ],
+  "dependencies": {
+    "push-to-comply": "^0.1.0"
+  },
   "scripts": {
-    "test": "node --test",
+    "test": "npm test --workspaces && node --test test/*.test.mjs",
     "clean": "rm -rf public",
-    "build": "node .github/actions/render_site.mjs",
-    "procedures": "node .github/actions/generate_tickets.mjs",
+    "build": "ptcomply build",
+    "procedures": "ptcomply procedures",
+    "gaps": "ptcomply gaps",
     "serve": "npx live-server -q public",
-    "watch": "npx nodemon --ext '*' --watch .github/actions --watch . --ignore public --exec 'npm run build' & npm run serve"
+    "watch": "npx nodemon --ext '*' --watch packages --watch . --ignore public --exec 'npm run build' & npm run serve"
   },
   "license": "ISC",
-  "description": "GRC meets DevOps - manage policies, procedures, and narratives as git artifacts mapped to compliance framework controls.",
   "engines": {
     "node": ">=22"
-  },
-  "dependencies": {
-    "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
-    "@octokit/rest": "^21.0.2",
-    "cron-parser": "^4.9.0",
-    "cronstrue": "^2.50.0",
-    "handlebars": "^4.7.8",
-    "js-yaml": "^4.1.0",
-    "luxon": "^3.5.0",
-    "markdown-it": "^14.1.0",
-    "markdown-it-task-lists": "^2.1.1"
   }
 }

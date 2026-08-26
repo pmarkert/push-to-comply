@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { getCronIterator, mostRecentValidDate } from "../.github/actions/scheduler.mjs";
+import { getCronIterator, mostRecentValidDate } from "../lib/scheduler.mjs";
 
 test("getCronIterator yields each occurrence between start and end", () => {
   const dates = [

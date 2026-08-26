@@ -21,7 +21,7 @@ jobs:
           node-version: "22"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate and assign tickets
         env:
@@ -29,4 +29,4 @@ jobs:
           GITHUB_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
         run: |
-          npm run procedures '${{ toJson(github.event.client_payload) }}'
+          npx ptcomply procedures '${{ toJson(github.event.client_payload) }}'

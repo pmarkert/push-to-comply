@@ -45,6 +45,7 @@ function environmentContext() {
     },
     config: {
       ticket_safety_limit: process.env.TICKET_SAFETY_LIMIT ?? 3,
+      context_directory: process.env.CONTEXT_DIRECTORY ?? "context",
       controls_directory: process.env.CONTROLS_DIRECTORY ?? "controls",
       standards_directory: process.env.STANDARDS_DIRECTORY ?? "standards",
       procedures_subdirectory:
@@ -61,8 +62,9 @@ function environmentContext() {
   };
 }
 
-function staticContext(folder = "./context") {
+function staticContext(folder) {
   const environment_context = environmentContext();
+  folder ??= environment_context.config.context_directory;
   if (!contextDataCache[folder]) {
     contextDataCache[folder] = {
       ...environment_context,

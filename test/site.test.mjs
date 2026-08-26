@@ -5,16 +5,15 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-// End-to-end smoke test: build the site into a temp directory and verify the
-// key pages and the machine-readable compliance snapshot.
+// End-to-end smoke test: build the template's real content with the ptcomply
+// CLI into a temp directory and verify the key pages and the machine-readable
+// compliance snapshot.
 
+const BIN = path.resolve("node_modules/.bin/ptcomply");
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptc-site-"));
 
 test("site build succeeds and produces expected artifacts", () => {
-  execFileSync(process.execPath, [".github/actions/render_site.mjs"], {
-    env: { ...process.env, OUTPUT_DIRECTORY: outDir, QUIET: "1" },
-    stdio: "pipe",
-  });
+  execFileSync(BIN, ["build", "--quiet", "--out", outDir], { stdio: "pipe" });
 
   for (const page of [
     "index.html",
@@ -25,6 +24,9 @@ test("site build succeeds and produces expected artifacts", () => {
     "standards/tsc-2017.html",
     // alias published under the standard's mapping key, used by control pages
     "standards/TSC.html",
+    // default assets come from the engine; branding assets from this repo
+    "assets/css/styles.css",
+    "assets/logo.svg",
   ]) {
     assert.ok(fs.existsSync(path.join(outDir, page)), `missing ${page}`);
   }
