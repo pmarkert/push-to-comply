@@ -29,6 +29,9 @@ repository root is the **content template** that organizations clone.
 ## Commands
 
 - `npm test` — run engine tests then template integration tests (Node 22+).
+- `ptcomply init <dir> [--template <repo>]` — scaffold a new compliance
+  program from a template repository (registry: `templates.json` at repo
+  root).
 - `npm run build` / `ptcomply build` — render the site into `public/`,
   including `public/compliance.json`.
 - `ptcomply gaps [--standard KEY] [--json] [--fail-on-gaps]` — report

@@ -305,6 +305,55 @@ The project is split into two parts:
 
 Layouts and CSS/JS assets ship inside the engine as defaults. A content repository can override any of them by creating a file of the same name under its own `layouts/` or `assets/` directory (branding files like `assets/logo.svg` are the common case).
 
+## Starting a new program: `ptcomply init` and template repositories
+
+The engine embeds no compliance content. New programs start from **template
+repositories** — ordinary git repositories containing `controls/`,
+`standards/`, and `context/`:
+
+```
+ptcomply init my-compliance-program                          # choose from the published registry
+ptcomply init my-program --template acme/soc2-hipaa-template # any GitHub repo (owner/repo shorthand)
+ptcomply init my-program --template git@github.com:me/private-template.git
+ptcomply init my-program --template ../local-template        # local path
+```
+
+`init` clones the template with *your* git credentials (so private templates
+work), strips the template's history, optionally personalizes
+`context/organization.yaml` (`--name`, `--short-name`), and creates a fresh
+repository with an initial commit — your program's history starts at *your*
+first commit, which matters when PR history is audit evidence.
+
+The curated registry lives at [templates.json](templates.json) on this
+repository's main branch (`ptcomply init --list` shows it; `--registry`
+points elsewhere). Anyone can build and share template repositories —
+different standards, industries, or a consultancy's private starting point —
+and they need no relationship to this project beyond the content layout.
+
+Prefer zero local tooling? Cloning (or "Use this template"-ing) a template
+repository works on its own: the bundled GitHub workflows install the engine
+in CI, so editing markdown through the GitHub UI and merging PRs is a
+complete workflow — the portal, gap analysis, and ticket scheduler all run
+in Actions. The CLI adds local preview, gap checks, and a driver for your
+own automation (evidence collection scripts, account reviews, agents).
+
+## Trying it out before the npm release
+
+The engine isn't on npm yet. To install and test it from this repository:
+
+```
+git clone https://github.com/pmarkert/push-to-comply
+cd push-to-comply && npm install && npm test
+npm pack --workspace push-to-comply     # produces push-to-comply-<version>.tgz
+npm install -g ./push-to-comply-<version>.tgz
+ptcomply version
+```
+
+Inside a scaffolded program, point the dependency at the tarball until the
+registry package exists: `npm install /path/to/push-to-comply-<version>.tgz`.
+(For engine development, `npm link` from `packages/push-to-comply` works
+too.)
+
 ## Development
 
 - Requires Node.js 22+ (see `.nvmrc`).

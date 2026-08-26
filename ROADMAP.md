@@ -26,9 +26,14 @@ for free. This roadmap captures where to take the project next.
 
 ## Near term
 
-- **Publish the engine to npm** and switch the template's dependency from
-  the workspace to the registry; optionally split the template into its own
-  repository at that point.
+- `ptcomply init`: scaffold new programs from template repositories (no
+  content embedded in the engine) — curated registry in `templates.json`,
+  owner/repo shorthand, private repos via the user's git auth, local paths.
+  The full pre-publish client journey (global tarball install → init →
+  install → build/gaps) is exercised by tests and rehearsal.
+- **Publish the engine to npm** and create `push-to-comply-template` (the
+  root content minus `packages/`, dependency pointed at the registry),
+  listed in `templates.json`; optionally mirror it automatically on release.
 - **Schema validation**: validate front-matter (`satisfies` keys reference a
   known standard, criteria ids exist, `dynamic_fields` declared for every
   macro) as a test/CI step — catch mapping typos before an auditor does.

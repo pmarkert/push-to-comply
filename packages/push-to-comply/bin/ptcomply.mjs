@@ -13,6 +13,15 @@ const USAGE = `ptcomply ${version} — compliance programs as git artifacts
 Usage: ptcomply <command> [options]
 
 Commands:
+  init <dir>   Start a new compliance program from a template repository
+                 --template <repo>  git URL, owner/repo shorthand, or local path
+                                    (omit to choose from the published registry)
+                 --list             list registry templates and exit
+                 --registry <url>   alternate registry (default: templates.json
+                                    on pmarkert/push-to-comply main)
+                 --name <name>      organization name for context/organization.yaml
+                 --short-name <n>   organization short name
+                 --skip-git         do not create a fresh git repository
   build        Render the documentation portal and compliance.json
                  --out <dir>       output directory (default: public)
                  --quiet           suppress per-page logging
@@ -33,7 +42,84 @@ TICKET_SAFETY_LIMIT, DRY_RUN, QUIET.
 
 const [command, ...rest] = process.argv.slice(2);
 
+function printTemplates(templates) {
+  templates.forEach((t, i) =>
+    console.log(
+      `  ${i + 1}. ${t.name} [${(t.standards ?? []).join(", ")}] — ${t.description}\n     ${t.repository}`
+    )
+  );
+}
+
+async function chooseTemplate(templates) {
+  console.log("Available templates:");
+  printTemplates(templates);
+  if (!process.stdin.isTTY || templates.length === 1) {
+    console.log(`Using template: ${templates[0].name}`);
+    return templates[0];
+  }
+  const readline = await import("node:readline/promises");
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  const answer = await rl.question(
+    `Choose a template [1-${templates.length}] (1): `
+  );
+  rl.close();
+  const index = parseInt(answer || "1", 10) - 1;
+  if (!(index >= 0 && index < templates.length)) {
+    throw new Error(`Invalid selection: ${answer}`);
+  }
+  return templates[index];
+}
+
 switch (command) {
+  case "init": {
+    const { values, positionals } = parseArgs({
+      args: rest,
+      allowPositionals: true,
+      options: {
+        template: { type: "string" },
+        list: { type: "boolean" },
+        registry: { type: "string" },
+        name: { type: "string" },
+        "short-name": { type: "string" },
+        "skip-git": { type: "boolean" },
+      },
+    });
+    const { fetchTemplateRegistry, initProgram } = await import(
+      "../lib/init.mjs"
+    );
+    if (values.list) {
+      const registry = await fetchTemplateRegistry(values.registry);
+      printTemplates(registry.templates ?? []);
+      break;
+    }
+    const directory = positionals[0];
+    if (!directory) {
+      console.error("Usage: ptcomply init <directory> [--template <repo>]");
+      process.exitCode = 1;
+      break;
+    }
+    let template = values.template;
+    if (!template) {
+      const registry = await fetchTemplateRegistry(values.registry);
+      const templates = registry.templates ?? [];
+      if (!templates.length) {
+        throw new Error("The template registry lists no templates.");
+      }
+      template = (await chooseTemplate(templates)).repository;
+    }
+    await initProgram({
+      directory,
+      template,
+      name: values.name,
+      short_name: values["short-name"],
+      skipGit: values["skip-git"],
+    });
+    break;
+  }
+
   case "build": {
     const { values } = parseArgs({
       args: rest,

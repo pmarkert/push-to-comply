@@ -7,6 +7,12 @@ export {
   complianceSummary,
 } from "./content.mjs";
 export { convertOscalCatalog } from "./oscal.mjs";
+export {
+  initProgram,
+  fetchTemplateRegistry,
+  resolveTemplateUrl,
+  DEFAULT_REGISTRY,
+} from "./init.mjs";
 export { getCronIterator, mostRecentValidDate } from "./scheduler.mjs";
 export { default as templates } from "./templates.mjs";
 export { default as GitHubIssuesAdapter } from "./GitHubIssuesAdapter.mjs";
