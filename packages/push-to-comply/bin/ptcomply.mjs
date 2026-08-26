@@ -28,6 +28,7 @@ Commands:
   procedures   Evaluate procedure schedules and generate tickets
                  [payload]         JSON client payload for a manual trigger
                  --dry-run         report what would happen without creating issues
+  validate     Check content integrity (satisfies keys and criterion ids)
   gaps         Report unsatisfied criteria per standard
                  --standard <key>  only this standard (mapping key)
                  --json            print the machine-readable summary
@@ -150,6 +151,19 @@ switch (command) {
     if (failures.length) {
       console.error(`${failures.length} procedure(s) failed:`, failures);
       process.exitCode = 1;
+    }
+    break;
+  }
+
+  case "validate": {
+    const { validateContent } = await import("../lib/validate.mjs");
+    const { errors } = validateContent();
+    if (errors.length) {
+      for (const error of errors) console.error(`ERROR ${error}`);
+      console.error(`${errors.length} validation error(s).`);
+      process.exitCode = 1;
+    } else {
+      console.log("Content is valid.");
     }
     break;
   }

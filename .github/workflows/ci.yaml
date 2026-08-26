@@ -26,5 +26,8 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Validate content mappings
+        run: npx ptcomply validate
+
       - name: Verify site build
         run: npm run build

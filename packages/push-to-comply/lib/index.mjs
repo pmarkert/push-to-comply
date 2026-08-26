@@ -7,6 +7,7 @@ export {
   complianceSummary,
 } from "./content.mjs";
 export { convertOscalCatalog } from "./oscal.mjs";
+export { validateContent } from "./validate.mjs";
 export {
   initProgram,
   fetchTemplateRegistry,
