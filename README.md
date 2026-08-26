@@ -318,6 +318,22 @@ GitHub provides a [workflow_dispatch](https://docs.github.com/en/actions/writing
 >
 > The procedure's ID is the subdirectory and filename without the markdown extension.
 
+## Evidence and Audit Engagements
+
+Audit engagements (SOC 2, customer assessments) run in **separate,
+engagement-scoped evidence repositories** — never in this repo — linked
+back to the program by front-matter (`supports:` mirrors `satisfies:`).
+Start one from the evidence template (`ptcomply init evidence-2026-soc2`
+choosing the evidence template), and check what still needs evidence with:
+
+```
+ptcomply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--fail-on-missing]
+```
+
+See [docs/evidence-architecture.md](docs/evidence-architecture.md) for the
+full architecture: why evidence is separate, the repository layout, the
+observation → procedure flywheel, and how agents fit.
+
 ## Machine-Readable Compliance Snapshot
 
 Every site build also writes `public/compliance.json`: a full snapshot of the compliance program designed for automation and AI agents. It includes each standard with per-criterion coverage (which controls satisfy it), per-family statistics, an `unsatisfied` gap list, and an index of every control with its metadata (owner, version, approval date, schedule, mappings). Dashboards, auditors' tooling, or an agent asked "where are our gaps against 800-53?" can consume this file directly instead of scraping HTML.

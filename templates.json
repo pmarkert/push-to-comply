@@ -4,9 +4,17 @@
   "templates": [
     {
       "name": "soc2-starter",
+      "kind": "program",
       "description": "SOC 2 starter program: policies, narratives, and recurring procedures mapped to the 2017 Trust Services Criteria (paraphrased summaries).",
-      "repository": "pmarkert/push-to-comply-template",
+      "repository": "push-to-comply/soc2-template",
       "standards": ["TSC"]
+    },
+    {
+      "name": "evidence",
+      "kind": "evidence",
+      "description": "Engagement-scoped evidence repository: auditor requests, inbox triage, curated evidence linked to criteria via `supports`, observations, runbooks, and agent skills.",
+      "repository": "push-to-comply/evidence-template",
+      "standards": []
     }
   ]
 }

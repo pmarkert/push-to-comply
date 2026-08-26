@@ -13,6 +13,7 @@ export {
 } from "./content.mjs";
 export { convertOscalCatalog } from "./oscal.mjs";
 export { validateContent } from "./validate.mjs";
+export { loadEvidence, evidenceCoverage } from "./evidence.mjs";
 export {
   initProgram,
   fetchTemplateRegistry,

@@ -33,6 +33,12 @@ Commands:
                  --standard <key>  only this standard (mapping key)
                  --json            print the machine-readable summary
                  --fail-on-gaps    exit non-zero if any criterion is unsatisfied
+  evidence     Cross-reference an evidence repository against the program
+                 coverage --dir <path>   evidence repo to scan (required)
+                 --engagement <id>       only evidence tagged with this engagement
+                 --standard <key>        only this standard
+                 --json                  machine-readable output
+                 --fail-on-missing       exit non-zero if any criterion lacks evidence
   version      Print the engine version
 
 Environment overrides: CONTROLS_DIRECTORY, STANDARDS_DIRECTORY,
@@ -220,6 +226,72 @@ switch (command) {
     const gapCount = selected.reduce((n, s) => n + s.unsatisfied.length, 0);
     if (values["fail-on-gaps"] && gapCount > 0) {
       console.error(`${gapCount} unsatisfied criteria.`);
+      process.exitCode = 1;
+    }
+    break;
+  }
+
+  case "evidence": {
+    const { values, positionals } = parseArgs({
+      args: rest,
+      allowPositionals: true,
+      options: {
+        dir: { type: "string" },
+        engagement: { type: "string" },
+        standard: { type: "string" },
+        json: { type: "boolean" },
+        "fail-on-missing": { type: "boolean" },
+      },
+    });
+    if (positionals[0] !== "coverage" || !values.dir) {
+      console.error("Usage: ptcomply evidence coverage --dir <evidence-repo>");
+      process.exitCode = 1;
+      break;
+    }
+    const { loadEvidence, evidenceCoverage } = await import(
+      "../lib/evidence.mjs"
+    );
+    const { default: templates } = await import("../lib/templates.mjs");
+    const coverage = evidenceCoverage(
+      templates.mergeContext(),
+      loadEvidence(values.dir),
+      { engagement: values.engagement }
+    );
+    const selected = coverage.standards.filter(
+      (s) => !values.standard || s.key === values.standard
+    );
+    if (values.json) {
+      console.log(
+        JSON.stringify({ ...coverage, standards: selected }, null, 2)
+      );
+    } else {
+      console.log(
+        `${coverage.evidence_count} evidence item(s)` +
+          (coverage.engagement ? ` for engagement ${coverage.engagement}` : "")
+      );
+      for (const standard of selected) {
+        console.log(
+          `${standard.key} — ${standard.name}: ${standard.stats.with_evidence}/${standard.stats.total} criteria have evidence`
+        );
+        for (const criterion of standard.criteria) {
+          if (!criterion.evidence.length) {
+            console.log(`  NO EVIDENCE ${criterion.id}  ${criterion.name ?? ""}`);
+          }
+        }
+      }
+      for (const item of coverage.unknown_references) {
+        console.log(`  UNKNOWN REFERENCE ${item.file}: ${item.reference}`);
+      }
+      for (const item of coverage.malformed) {
+        console.log(`  MALFORMED ${item.file}: ${item.error}`);
+      }
+    }
+    const missing = selected.reduce(
+      (n, s) => n + (s.stats.total - s.stats.with_evidence),
+      0
+    );
+    if (values["fail-on-missing"] && missing > 0) {
+      console.error(`${missing} criteria lack evidence.`);
       process.exitCode = 1;
     }
     break;
