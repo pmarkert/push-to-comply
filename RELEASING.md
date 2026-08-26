@@ -25,6 +25,37 @@ ptcomply init /tmp/rehearsal --template dist/repos/soc2-template --name "Test Co
 cd /tmp/rehearsal && npm install <path-to-tarball> && npx ptcomply validate && npx ptcomply build && npx ptcomply gaps
 ```
 
+### Optional: full registry rehearsal with a local npm registry
+
+The tarball flow doesn't exercise registry resolution. To rehearse the
+*real* publish/install protocol without touching npmjs, run
+[Verdaccio](https://verdaccio.org) locally:
+
+```
+mkdir /tmp/registry && cd /tmp/registry
+cat > config.yaml <<'YAML'
+storage: ./storage
+auth: { htpasswd: { file: ./htpasswd } }
+uplinks: { npmjs: { url: https://registry.npmjs.org/ } }
+packages:
+  'push-to-comply': { access: $all, publish: $all }
+  '**': { access: $all, proxy: npmjs }
+YAML
+npx verdaccio --config config.yaml --listen 4873 &
+
+cd <monorepo>
+npm publish --workspace push-to-comply --registry http://localhost:4873 --//localhost:4873/:_authToken=fake
+
+# The exact first-user experience, resolved through the registry:
+export npm_config_registry=http://localhost:4873
+cd /tmp && npx -y push-to-comply init acme --template <monorepo>/dist/repos/soc2-template --name "Test Co" --short-name TestCo
+cd acme && npm install && npx ptcomply validate && npx ptcomply build && npx ptcomply gaps
+```
+
+(`--//localhost:4873/:_authToken=fake` satisfies npm's publish-needs-auth
+check; the config accepts anonymous publishes. Unset
+`npm_config_registry` afterwards.)
+
 ## 1. Publish the monorepo to the organization
 
 Push this repository to `push-to-comply/push-to-comply`. For a clean
