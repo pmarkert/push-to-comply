@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     collapsible.addEventListener("click", function () {
       this.classList.toggle("collapsed");
       const content = this.nextElementSibling;
-      if (content.computedStyleMap().get("display").toString() === "block") {
+      if (window.getComputedStyle(content).display === "block") {
         content.style.display = "none";
       } else {
         content.style.display = "block";

@@ -1,18 +1,20 @@
 {
-  "name": "imply",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "push-to-comply",
+  "version": "1.1.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "clean": "rm -rf public",
     "build": "node .github/actions/render_site.mjs",
     "procedures": "node .github/actions/generate_tickets.mjs",
     "serve": "npx live-server -q public",
     "watch": "npx nodemon --ext '*' --watch .github/actions --watch . --ignore public --exec 'npm run build' & npm run serve"
   },
-  "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "GRC meets DevOps - manage policies, procedures, and narratives as git artifacts mapped to compliance framework controls.",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@octokit/plugin-rest-endpoint-methods": "^13.2.4",
     "@octokit/rest": "^21.0.2",

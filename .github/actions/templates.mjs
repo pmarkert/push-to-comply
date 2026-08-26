@@ -157,8 +157,7 @@ const loadTemplate = (base_directory, id) => {
   ).find(fs.existsSync);
 
   if (!filename) {
-    console.error(`Template ${id} not found.`);
-    process.exit(1);
+    throw new Error(`Template ${id} not found.`);
   }
 
   const source = fs.readFileSync(filename, "utf8");
@@ -171,8 +170,9 @@ const loadTemplate = (base_directory, id) => {
       Handlebars.compile(source, { strict: true })(localContext)
     );
     if (!parsed || !parsed.groups) {
-      console.error(`Failed to parse front matter or body for template: ${id}`);
-      process.exit(1);
+      throw new Error(
+        `Failed to parse front matter or body for template: ${id}`
+      );
     }
     const metadata = yaml.load(parsed.groups.front_matter || "{}");
     return {
@@ -186,14 +186,22 @@ const loadTemplate = (base_directory, id) => {
     };
   }
 
+  // Visible {{placeholders}} for the declared dynamic fields only. Used when
+  // generating scheduled tickets, where date values should render for real.
+  function dynamic_field_placeholders() {
+    return Object.fromEntries(
+      (this.metadata.dynamic_fields ?? []).map((field) => [
+        field,
+        `{{${field}}}`,
+      ])
+    );
+  }
+
+  // Placeholders for dynamic fields AND date fields. Used when rendering
+  // documentation, where the reader should see the macros themselves.
   function generate_dynamic_placeholders() {
     return {
-      ...Object.fromEntries(
-        (this.metadata.dynamic_fields ?? []).map((field) => [
-          field,
-          `{{${field}}}`,
-        ])
-      ),
+      ...this.dynamic_field_placeholders(),
       ...Object.fromEntries(
         Object.keys(dateContext()).map((field) => [field, `{{${field}}}`])
       ),
@@ -204,6 +212,7 @@ const loadTemplate = (base_directory, id) => {
     id,
     source,
     filename,
+    dynamic_field_placeholders,
     generate_dynamic_placeholders,
     metadata: yaml.load(parsed.groups.front_matter || "{}"),
     merge,

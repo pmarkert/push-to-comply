@@ -50,10 +50,15 @@ class GitHubIssuesAdapter {
   };
 
   getOrCreateMilestone = async function (github) {
+    if (!github.milestone) {
+      return undefined;
+    }
+    if (process.env.DRY_RUN) {
+      console.log("DRY_RUN: would use milestone", github.milestone);
+      return undefined;
+    }
     return (
-      github.milestone &&
-      ((await this.getMilestone(github)) ??
-        (await this.createMilestone(github)))
+      (await this.getMilestone(github)) ?? (await this.createMilestone(github))
     );
   };
 
@@ -85,7 +90,18 @@ class GitHubIssuesAdapter {
         sort: "created",
         direction: "desc",
       })
-      .then((issues) => new Date(issues.data?.[0]?.created_at));
+      .then((issues) => new Date(issues.data?.[0]?.created_at))
+      .catch((error) => {
+        if (process.env.DRY_RUN) {
+          console.warn(
+            `DRY_RUN: could not fetch issues for ${procedure.id} (${
+              error.status ?? error.message
+            }); ignoring`
+          );
+          return new Date(undefined);
+        }
+        throw error;
+      });
   };
 }
 

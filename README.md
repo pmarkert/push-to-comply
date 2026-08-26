@@ -67,9 +67,14 @@ push-to-comply procedures can be manually triggered/invoked using secure API cal
 
 ## Standards
 
-Standards represent industry accepted best practices and rule-sets for achieving compliance. Standards definitions are based on [opencontrol schemas](https://github.com/opencontrol/standards). Opencontrol standards may be placed into the [standards/] folder as-is with a `.yaml` extension.
+Standards represent industry accepted best practices and rule-sets for achieving compliance. Standard definitions can be provided in three formats, all placed in the [standards/](standards/) folder:
 
-Standards may also be enhanced as markdown files. The opencontrol data should be placed under the `standard` property. A top-level `name` or `description` property may be used to provide a friendly display name for the standard. The markdown body of the file may be used to provide explanatory text or narrative about the standard.
+1. **OSCAL catalogs (`.json`)** — [NIST OSCAL](https://pages.nist.gov/OSCAL/) is the official, actively maintained machine-readable format for control catalogs. Drop a catalog file (e.g. the public-domain [NIST SP 800-53 rev5 catalog](https://github.com/usnistgov/oscal-content/tree/main/nist.gov/SP800-53/rev5/json)) into `standards/` and it is automatically converted: groups become criterion families, controls and their enhancements become criteria, withdrawn controls are excluded, and organization-defined parameters are rendered as readable labels. The filename (without `.json`) is the mapping key controls use in their `satisfies` metadata — name the file `NIST-800-53.json` and map controls with `NIST-800-53: [AC-1]`.
+2. **opencontrol-style YAML (`.yaml`)** — based on the legacy [opencontrol schemas](https://github.com/opencontrol/standards). The OpenControl project is dormant; existing YAML standards still work, but OSCAL is the recommended source for new framework data.
+3. **Markdown (`.md`)** — an opencontrol-style standard placed under a `standard` front-matter property, with a markdown body providing narrative about the standard. A top-level `name` or `description` property provides a friendly display name. The bundled [standards/tsc-2017.md](standards/tsc-2017.md) is an example: paraphrased summaries of the SOC 2 Trust Services Criteria.
+
+> [!NOTE]
+> **Licensing:** NIST publications (SP 800-53, CSF 2.0, etc.) are public domain and safe to commit. The SOC 2 Trust Services Criteria are copyrighted by the AICPA and are not offered in an official machine-readable form — use paraphrased criterion summaries (as this repository does) rather than verbatim text. ISO 27001 and CIS Controls likewise carry licenses that prohibit redistribution of the full control text.
 
 ## Controls
 
@@ -279,6 +284,17 @@ GitHub provides a [workflow_dispatch](https://docs.github.com/en/actions/writing
 > [!NOTE]
 >
 > The procedure's ID is the subdirectory and filename without the markdown extension.
+
+## Machine-Readable Compliance Snapshot
+
+Every site build also writes `public/compliance.json`: a full snapshot of the compliance program designed for automation and AI agents. It includes each standard with per-criterion coverage (which controls satisfy it), per-family statistics, an `unsatisfied` gap list, and an index of every control with its metadata (owner, version, approval date, schedule, mappings). Dashboards, auditors' tooling, or an agent asked "where are our gaps against 800-53?" can consume this file directly instead of scraping HTML.
+
+## Development
+
+- Requires Node.js 22+ (see `.nvmrc`).
+- `npm test` runs the test suite (built on `node:test`, no extra dependencies). CI runs tests and a site build on every push and pull request.
+- `DRY_RUN=1 npm run procedures` evaluates the ticket scheduler without creating issues and works offline.
+- See [AGENTS.md](AGENTS.md) for a repository guide aimed at both human contributors and AI coding agents.
 
 ## Options for documentation website publishing:
 

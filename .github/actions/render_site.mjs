@@ -1,43 +1,47 @@
 import fs from "fs";
 import path from "path";
 import templates from "./templates.mjs";
+import { convertOscalCatalog } from "./oscal.mjs";
 import Handlebars from "handlebars";
 import yaml from "js-yaml";
 
-const MARKDOWN_EXTENSIION_PATTERN = new RegExp(
-  "\\" + templates.MARKDOWN_EXTENSIONS.join("|") + "$"
+const MARKDOWN_EXTENSION_PATTERN = new RegExp(
+  `(${templates.MARKDOWN_EXTENSIONS.map((ext) => "\\" + ext).join("|")})$`
 );
 const MARKDOWN_HYPERLINK = /\[(?<text>[^\]]+)\]\((?<link>[^)]+)\)/g;
 
-Array.prototype.sideEffect = function (callback) {
-  this.forEach(callback);
-  return this;
+const tap = (array, callback) => {
+  array.forEach(callback);
+  return array;
 };
 
-Array.prototype.map_by = function (callback, mapper = (e) => e) {
-  return Object.fromEntries(this.map((e) => [callback(e), mapper(e)]));
-};
+const indexBy = (array, keyFn) =>
+  Object.fromEntries(array.map((e) => [keyFn(e), e]));
 
 function log(...message) {
   !process.env["QUIET"] && console.log(...message);
 }
 
 function loadLayouts() {
-  return fs
-    .readdirSync(context.config.layouts_directory)
-    .filter((f) => path.extname(f) === ".html")
-    .map((f) => ({
-      name: path.basename(f, path.extname(f)),
-      template: fs.readFileSync(
-        path.join(context.config.layouts_directory, f),
-        "utf8"
-      ),
-    }))
-    .sideEffect((f) => {
-      Handlebars.registerPartial(f.name, f.template);
-      f.render = Handlebars.compile(f.template, { strict: true });
-    })
-    .map_by((f) => f.name);
+  return indexBy(
+    tap(
+      fs
+        .readdirSync(context.config.layouts_directory)
+        .filter((f) => path.extname(f) === ".html")
+        .map((f) => ({
+          name: path.basename(f, path.extname(f)),
+          template: fs.readFileSync(
+            path.join(context.config.layouts_directory, f),
+            "utf8"
+          ),
+        })),
+      (f) => {
+        Handlebars.registerPartial(f.name, f.template);
+        f.render = Handlebars.compile(f.template, { strict: true });
+      }
+    ),
+    (f) => f.name
+  );
 }
 
 function writePage(filename, content) {
@@ -55,6 +59,14 @@ function writePage(filename, content) {
   );
 }
 
+function writeJson(filename, data) {
+  log("Writing", filename);
+  fs.writeFileSync(
+    path.join(context.config.output_directory, filename),
+    JSON.stringify(data, null, 2)
+  );
+}
+
 function replaceRelativeLinks(body) {
   return body.replace(MARKDOWN_HYPERLINK, (match, text, link) => {
     try {
@@ -65,7 +77,7 @@ function replaceRelativeLinks(body) {
         throw new Error(`Could not find file: ${link}`);
       }
       return `[${text}](${link
-        .replace(MARKDOWN_EXTENSIION_PATTERN, ".html")
+        .replace(MARKDOWN_EXTENSION_PATTERN, ".html")
         .replace(/^\/?(controls\/)?/, "")})`;
     }
   });
@@ -83,20 +95,21 @@ function renderControlPage(control, default_layout) {
 
 function processControls(template_dir, type) {
   console.log("Processing", template_dir);
-  return templates
-    .loadTemplates(context.config.controls_directory, template_dir)
-    .map((template) =>
-      // Include dynamic placeholders since we are rendering as a document
-      template.merge(template.generate_dynamic_placeholders())
-    )
-    .map((control) => ({
-      ...control,
-      name: `${control.name ?? control.title ?? control.id}`,
-      type,
-    }))
-    .sideEffect((control) =>
-      writePage(control.id, renderControlPage(control, "control"))
-    );
+  return tap(
+    templates
+      .loadTemplates(context.config.controls_directory, template_dir)
+      .map((template) => ({
+        // Include dynamic placeholders since we are rendering as a document
+        ...template.merge(template.generate_dynamic_placeholders()),
+        metadata: template.metadata,
+      }))
+      .map((control) => ({
+        ...control,
+        name: `${control.name ?? control.title ?? control.id}`,
+        type,
+      })),
+    (control) => writePage(control.id, renderControlPage(control, "control"))
+  );
 }
 
 function organizeControlHierarchy(controls) {
@@ -147,15 +160,90 @@ function loadYamlStandards() {
     .filter((f) => templates.YAML_EXTENSIONS.includes(path.extname(f)))
     .map((f) => {
       const standard = yaml.load(
-        fs.readFileSync(path.join(STANDARDS_DIR, f), "utf8")
+        fs.readFileSync(path.join(context.config.standards_directory, f), "utf8")
       );
       return {
-        id: f,
+        id: path.join(
+          context.config.standards_directory,
+          path.basename(f, path.extname(f))
+        ),
         name: standard.name,
         body: "",
         standard,
       };
     });
+}
+
+// OSCAL catalogs (e.g. NIST SP 800-53 from usnistgov/oscal-content) dropped
+// into the standards directory as .json files. The mapping key used in
+// `satisfies` metadata is the filename (without extension).
+function loadOscalStandards() {
+  return fs
+    .readdirSync(context.config.standards_directory)
+    .filter((f) => path.extname(f) === ".json")
+    .map((f) => {
+      const mapping_name = path.basename(f, ".json");
+      const catalog = JSON.parse(
+        fs.readFileSync(path.join(context.config.standards_directory, f), "utf8")
+      );
+      const converted = convertOscalCatalog(catalog, mapping_name);
+      return {
+        id: path.join(context.config.standards_directory, mapping_name),
+        name: converted.title,
+        body: "",
+        standard: converted.standard,
+      };
+    });
+}
+
+function complianceSummary(standards, controls) {
+  const summarized = standards.map((standard) => {
+    const families = Object.fromEntries(
+      Object.entries(standard.mappings).map(([family, data]) => [
+        family,
+        {
+          stats: data.stats,
+          criteria: data.criteria.map((criterion) => ({
+            id: criterion.id,
+            name: criterion.name,
+            description: criterion.description,
+            satisfied: criterion.controls.length > 0,
+            controls: criterion.controls.map((control) => control.id),
+          })),
+        },
+      ])
+    );
+    const criteria = Object.values(families).flatMap((f) => f.criteria);
+    return {
+      id: standard.id,
+      key: standard.standard.name,
+      name: standard.name,
+      page: `${standard.id}.html`,
+      stats: {
+        total: criteria.length,
+        satisfied: criteria.filter((c) => c.satisfied).length,
+      },
+      unsatisfied: criteria.filter((c) => !c.satisfied).map((c) => c.id),
+      families,
+    };
+  });
+  return {
+    generated_at: new Date().toISOString(),
+    organization: context.organization,
+    standards: summarized,
+    controls: controls.map((control) => ({
+      id: control.id,
+      type: control.type,
+      name: control.name,
+      page: `${control.id}.html`,
+      owner: control.owner,
+      version: control.version,
+      approval_date: control.approval_date,
+      satisfies: control.satisfies,
+      cron: control.cron,
+      dynamic_fields: control.metadata?.dynamic_fields,
+    })),
+  };
 }
 
 const context = templates.mergeContext();
@@ -169,7 +257,6 @@ fs.cpSync(
 );
 
 // Load collections
-console.log(context);
 const procedures = processControls(
   context.config.procedures_subdirectory,
   "procedure"
@@ -183,27 +270,35 @@ const policies = processControls(
   "policy"
 );
 const controls = [...policies, ...narratives, ...procedures];
-const standards = templates
-  .loadTemplates("", context.config.standards_directory)
-  .map((template) => ({
-    ...template.merge({
-      name:
-        template.metadata.name ?? template.metadata.description ?? template.id,
-    }),
-  }))
-  .concat(loadYamlStandards())
-  .sideEffect((standard) =>
-    writePage(
-      standard.id,
-      renderControlPage(
-        {
-          ...standard,
-          mappings: applyControlMappings(standard.standard, controls),
-        },
-        "standard"
-      )
-    )
-  );
+const standards = tap(
+  templates
+    .loadTemplates("", context.config.standards_directory)
+    .map((template) => ({
+      ...template.merge({
+        name:
+          template.metadata.name ?? template.metadata.description ?? template.id,
+      }),
+    }))
+    .concat(loadYamlStandards())
+    .concat(loadOscalStandards())
+    .map((standard) => ({
+      ...standard,
+      mappings: applyControlMappings(standard.standard, controls),
+    })),
+  (standard) => {
+    const page = renderControlPage(standard, "standard");
+    writePage(standard.id, page);
+    // Controls link to standards by their mapping key (`satisfies` metadata),
+    // so also publish the page under that name when it differs from the id.
+    const alias = path.join(
+      path.dirname(standard.id),
+      `${standard.standard.name}`
+    );
+    if (alias !== standard.id) {
+      writePage(alias, page);
+    }
+  }
+);
 
 writePage(
   "procedures/index",
@@ -248,3 +343,7 @@ writePage(
     procedures: organizeControlHierarchy(procedures),
   })
 );
+
+// Machine-readable snapshot of the whole compliance program (for agents,
+// dashboards, and external tooling).
+writeJson("compliance.json", complianceSummary(standards, controls));
