@@ -284,7 +284,21 @@ const standards = tap(
     .map((standard) => ({
       ...standard,
       mappings: applyControlMappings(standard.standard, controls),
-    })),
+    }))
+    .map((standard) => {
+      const criteria = Object.values(standard.mappings).flatMap(
+        (family) => family.criteria
+      );
+      const satisfied = criteria.filter((c) => c.controls.length).length;
+      return {
+        ...standard,
+        stats: {
+          total: criteria.length,
+          satisfied,
+          percent: Math.round((satisfied / (criteria.length || 1)) * 100),
+        },
+      };
+    }),
   (standard) => {
     const page = renderControlPage(standard, "standard");
     writePage(standard.id, page);

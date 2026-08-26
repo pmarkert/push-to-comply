@@ -1,16 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{organization.short_name}}</title>
-    <link rel="stylesheet" href="assets/css/styles.css" />
-    <link rel="icon" href="{{branding.favicon_url}}" sizes="192x192" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-    <script defer src="assets/js/scripts.js"></script>
+    {{>head title=organization.short_name base="." favicon=branding.favicon_url}}
   </head>
   <body>
     {{>header}}
@@ -18,21 +9,31 @@
       <section class="welcome">
         <h2>Welcome to the {{organization.short_name}} Trust Portal</h2>
         <p>{{branding.welcome_message}}</p>
-        <div class="folder-controls">
-          <button onclick="expandAll()">Expand All</button>
-          <button onclick="collapseAll()">Collapse All</button>
+      </section>
+
+      <section>
+        <h3 class="section-heading">Standards</h3>
+        <div class="standard-grid">
+          {{#each standards}}
+          <a class="standard-card" href="{{id}}.html">
+            <div class="standard-card-title">
+              <i class="standard-icon"></i>{{name}}
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: {{stats.percent}}%"></div>
+            </div>
+            <div class="standard-card-stats">
+              {{stats.satisfied}} of {{stats.total}} criteria satisfied
+            </div>
+          </a>
+          {{/each}}
         </div>
       </section>
 
-      <section class="controls">
-        <h3 class="collapsible">Standards</h3>
-        <div class="content">
-          <ul class="control-list">
-            {{#each standards}} {{>control_list control_type='standard'}}
-            {{/each}}
-          </ul>
-        </div>
-      </section>
+      <div class="folder-controls">
+        <button onclick="expandAll()">Expand All</button>
+        <button onclick="collapseAll()">Collapse All</button>
+      </div>
 
       <section class="controls">
         <h3 class="collapsible">

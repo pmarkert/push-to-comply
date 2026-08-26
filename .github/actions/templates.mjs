@@ -3,6 +3,7 @@ import path from "path";
 import yaml from "js-yaml";
 import Handlebars from "handlebars";
 import markdownIt from "markdown-it";
+import markdownItTaskLists from "markdown-it-task-lists";
 import cronstrue from "cronstrue";
 import { DateTime } from "luxon";
 
@@ -17,7 +18,9 @@ const MARKDOWN_EXTENSIONS = [
 const YAML_EXTENSIONS = [".yaml", ".yml"];
 
 Handlebars.registerHelper("markdown", function (options) {
-  return new markdownIt().render(options.fn(this));
+  return new markdownIt()
+    .use(markdownItTaskLists)
+    .render(options.fn(this));
 });
 
 Handlebars.registerHelper("cronstrue", function (context) {
