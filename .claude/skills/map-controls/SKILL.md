@@ -5,8 +5,8 @@ description: Analyze or improve the mapping between this program's controls and 
 
 Work with the control ↔ criteria mappings.
 
-1. **Ground truth:** `npx push-to-comply gaps --json` (or
-   `public/compliance.json` after `npx push-to-comply build`) gives every
+1. **Ground truth:** `npx push2c gaps --json` (or
+   `public/compliance.json` after `npx push2c build`) gives every
    standard, per-criterion coverage with contributing control ids, and the
    `unsatisfied` list. Never infer coverage by reading documents alone.
 2. **Answering "what covers X":** find the criterion in the JSON; cite the
@@ -25,6 +25,6 @@ Work with the control ↔ criteria mappings.
    usnistgov/oscal-content) or an opencontrol-style file into
    `standards/`; the filename (minus extension) is the mapping key. Then
    work the gap list top-down, reusing existing controls first.
-5. Verify with `npx push-to-comply validate` (catches typo'd criterion ids) and
+5. Verify with `npx push2c validate` (catches typo'd criterion ids) and
    re-run `gaps` to show the delta. Mapping changes go through PR review
    like any control change.

@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 // End-to-end tests of the push-to-comply CLI against the fixture content repo in
 // test/fixtures — no dependence on any real compliance content.
 
-const BIN = fileURLToPath(new URL("../bin/push-to-comply.mjs", import.meta.url));
+const BIN = fileURLToPath(new URL("../bin/push2c.mjs", import.meta.url));
 const FIXTURES = fileURLToPath(new URL("./fixtures", import.meta.url));
 
 function run(args, options = {}) {
@@ -101,13 +101,13 @@ test("version prints the package version", () => {
   assert.equal(run(["version"]).trim(), pkg.version);
 });
 
-test("package exposes push-to-comply and the p2c alias to the same entry point", () => {
+test("package exposes the push2c binary as its only command", () => {
   const pkg = JSON.parse(
     fs.readFileSync(
       fileURLToPath(new URL("../package.json", import.meta.url)),
       "utf8"
     )
   );
-  assert.equal(pkg.bin["push-to-comply"], "bin/push-to-comply.mjs");
-  assert.equal(pkg.bin.p2c, pkg.bin["push-to-comply"]);
+  // A single bin lets `npx push-to-comply <cmd>` run it by package name.
+  assert.deepEqual(pkg.bin, { push2c: "bin/push2c.mjs" });
 });

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Registry of recommended push-to-comply template repositories. `push-to-comply init` reads this file from the main branch of push-to-comply/push-to-comply. Anyone can build a compatible template repository (any git repo with controls/, standards/, and context/ directories) and use it via `push-to-comply init <dir> --template <repo>`; open a pull request to list a public template here.",
+  "note": "Registry of recommended push-to-comply template repositories. `push2c init` reads this file from the main branch of push-to-comply/push-to-comply. Anyone can build a compatible template repository (any git repo with controls/, standards/, and context/ directories) and use it via `push2c init <dir> --template <repo>`; open a pull request to list a public template here.",
   "templates": [
     {
       "name": "soc2-starter",

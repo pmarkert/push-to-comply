@@ -21,8 +21,8 @@ this once more before the first publish:
 npm pack --workspace push-to-comply
 npm install -g ./push-to-comply-<version>.tgz
 node scripts/export-repos.mjs
-push-to-comply init /tmp/rehearsal --template dist/repos/soc2-template --name "Test Co" --short-name TestCo
-cd /tmp/rehearsal && npm install <path-to-tarball> && npx push-to-comply validate && npx push-to-comply build && npx push-to-comply gaps
+push2c init /tmp/rehearsal --template dist/repos/soc2-template --name "Test Co" --short-name TestCo
+cd /tmp/rehearsal && npm install <path-to-tarball> && npx push2c validate && npx push2c build && npx push2c gaps
 ```
 
 ### Optional: full registry rehearsal with a local npm registry
@@ -49,7 +49,7 @@ npm publish --workspace push-to-comply --registry http://localhost:4873 --//loca
 # The exact first-user experience, resolved through the registry:
 export npm_config_registry=http://localhost:4873
 cd /tmp && npx -y push-to-comply init acme --template <monorepo>/dist/repos/soc2-template --name "Test Co" --short-name TestCo
-cd acme && npm install && npx push-to-comply validate && npx push-to-comply build && npx push-to-comply gaps
+cd acme && npm install && npx push2c validate && npx push2c build && npx push2c gaps
 ```
 
 (`--//localhost:4873/:_authToken=fake` satisfies npm's publish-needs-auth
@@ -87,6 +87,15 @@ Option B — via CI: add an `NPM_TOKEN` secret (npm automation token) to the
 org repo, then push a version tag (`git tag v0.1.0 && git push org v0.1.0`).
 The `release.yaml` workflow verifies tests and the tag/version match, then
 publishes with provenance.
+
+### Reserve the `push2c` package name
+
+The CLI binary is `push2c`, but the package is `push-to-comply`. Inside a
+program repo `npx push2c` resolves to the locally installed binary — but in
+a directory *without* it installed, npx would look up an npm package named
+`push2c`. Publish a tiny placeholder under that name (e.g. a package whose
+only dependency is `push-to-comply` and whose `push2c` bin re-exports it)
+so the name can never be claimed by someone else.
 
 ## 3. Export and push the template repositories
 

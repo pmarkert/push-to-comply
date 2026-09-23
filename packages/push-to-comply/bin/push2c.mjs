@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// push-to-comply (alias: p2c) — the push-to-comply engine CLI.
+// push2c — the push-to-comply engine CLI.
 // Runs from the root of a compliance content repository.
 
 import { parseArgs } from "node:util";
@@ -8,10 +8,9 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json");
 
-const USAGE = `push-to-comply ${version} — compliance programs as git artifacts
+const USAGE = `push2c ${version} (push-to-comply engine) — compliance programs as git artifacts
 
-Usage: push-to-comply <command> [options]
-       p2c <command> [options]        (short alias)
+Usage: push2c <command> [options]
 
 Commands:
   init <dir>   Start a new compliance program from a template repository
@@ -58,8 +57,8 @@ if (["build", "procedures", "gaps", "validate", "evidence"].includes(command)) {
   if (!existsSync(contextDir) || !existsSync(controlsDir)) {
     console.error(
       `This does not look like a compliance program repository (missing ` +
-        `"${contextDir}/" or "${controlsDir}/"). Run push-to-comply ${command} from ` +
-        `the program root, or start one with: push-to-comply init <dir>`
+        `"${contextDir}/" or "${controlsDir}/"). Run push2c ${command} from ` +
+        `the program root, or start one with: push2c init <dir>`
     );
     process.exit(1);
   }
@@ -120,7 +119,7 @@ switch (command) {
     }
     const directory = positionals[0];
     if (!directory) {
-      console.error("Usage: push-to-comply init <directory> [--template <repo>]");
+      console.error("Usage: push2c init <directory> [--template <repo>]");
       process.exitCode = 1;
       break;
     }
@@ -260,7 +259,7 @@ switch (command) {
       },
     });
     if (positionals[0] !== "coverage" || !values.dir) {
-      console.error("Usage: push-to-comply evidence coverage --dir <evidence-repo>");
+      console.error("Usage: push2c evidence coverage --dir <evidence-repo>");
       process.exitCode = 1;
       break;
     }

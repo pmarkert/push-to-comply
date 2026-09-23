@@ -95,7 +95,7 @@ export async function initProgram({
     `\nDone. Next steps:\n` +
       `  cd ${directory}\n` +
       `  npm install\n` +
-      `  npx push-to-comply build   # renders the portal into public/\n` +
-      `  npx push-to-comply gaps    # shows unsatisfied criteria`
+      `  npx push2c build   # renders the portal into public/\n` +
+      `  npx push2c gaps    # shows unsatisfied criteria`
   );
 }

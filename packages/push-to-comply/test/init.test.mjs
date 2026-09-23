@@ -7,7 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveTemplateUrl } from "../lib/init.mjs";
 
-const BIN = fileURLToPath(new URL("../bin/push-to-comply.mjs", import.meta.url));
+const BIN = fileURLToPath(new URL("../bin/push2c.mjs", import.meta.url));
 const FIXTURES = fileURLToPath(new URL("./fixtures", import.meta.url));
 
 const GIT_ENV = {

@@ -33,15 +33,15 @@ repository root is the **content template** that organizations clone.
 ## Commands
 
 - `npm test` — run engine tests then template integration tests (Node 22+).
-- `push-to-comply init <dir> [--template <repo>]` — scaffold a new compliance
+- `push2c init <dir> [--template <repo>]` — scaffold a new compliance
   program from a template repository (registry: `templates.json` at repo
   root).
-- `npm run build` / `push-to-comply build` — render the site into `public/`,
+- `npm run build` / `push2c build` — render the site into `public/`,
   including `public/compliance.json`.
-- `push-to-comply gaps [--standard KEY] [--json] [--fail-on-gaps]` — report
+- `push2c gaps [--standard KEY] [--json] [--fail-on-gaps]` — report
   unsatisfied criteria.
 - `npm run serve` / `npm run watch` — local preview.
-- `push-to-comply procedures --dry-run` — evaluate the ticket scheduler without
+- `push2c procedures --dry-run` — evaluate the ticket scheduler without
   creating issues (works offline; GitHub reads are skipped or tolerated).
 
 Engine changes go in `packages/push-to-comply` (with tests against the

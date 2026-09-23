@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const BIN = fileURLToPath(new URL("../bin/push-to-comply.mjs", import.meta.url));
+const BIN = fileURLToPath(new URL("../bin/push2c.mjs", import.meta.url));
 const FIXTURES = fileURLToPath(new URL("./fixtures", import.meta.url));
 
 const evidenceDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptc-evidence-"));

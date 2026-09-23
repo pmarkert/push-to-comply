@@ -24,12 +24,12 @@ in a terminal or in the GitHub UI.
 
 1. Requires Node 22+ and the `push-to-comply` package
    (`npm install -g push-to-comply`, or `npx`).
-2. Show the available templates (`push-to-comply init --list`) and recommend one
+2. Show the available templates (`push2c init --list`) and recommend one
    for their framework; a consultant-provided or private template
    repository also works via `--template <repo>`.
 3. Scaffold:
-   `push-to-comply init <dir> --template <choice> --name "<Org Name>" --short-name <Short>`
-4. In the new repo: `npm install`, then `npx push-to-comply build` and open
+   `push2c init <dir> --template <choice> --name "<Org Name>" --short-name <Short>`
+4. In the new repo: `npm install`, then `npx push2c build` and open
    `public/index.html` so they see the portal immediately. Create the
    GitHub repository (usually private) and push.
 
@@ -39,7 +39,7 @@ Interview and fill `context/*.yaml` (see
 [references/organization-interview.md](references/organization-interview.md)
 for the question bank). Everything entered here flows into every document
 via Handlebars macros, so get it right once. Verify with
-`npx push-to-comply build` (strict mode surfaces missing values).
+`npx push2c build` (strict mode surfaces missing values).
 
 ## Phase 3 — Tailor policies to reality
 
@@ -70,8 +70,8 @@ blocks (mode: assist) for evidence-gathering procedures.
 
 ## Phase 4 — Verify and hand off
 
-1. `npx push-to-comply validate` and `npx push-to-comply build` must pass;
-   `npx push-to-comply gaps` per target standard — review remaining gaps with
+1. `npx push2c validate` and `npx push2c build` must pass;
+   `npx push2c gaps` per target standard — review remaining gaps with
    the user and record a plan for each (document, adopt practice, or
    accept).
 2. Confirm the GitHub workflows are active (site publishing choice,

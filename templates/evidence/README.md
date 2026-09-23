@@ -4,7 +4,7 @@ An engagement-scoped evidence repository for a
 [push-to-comply](https://github.com/push-to-comply/push-to-comply)
 compliance program. One repository per engagement (e.g.
 `evidence-2026-soc2`); start the next engagement with
-`push-to-comply init evidence-2027-soc2 --template <this template>`.
+`push2c init evidence-2027-soc2 --template <this template>`.
 
 **This repository is sensitive.** Keep it private, apply your data
 classification and retention policies to it, use Git LFS for binaries, and
@@ -43,7 +43,7 @@ supports:
 Check coverage from your **program** repo:
 
 ```
-push-to-comply evidence coverage --dir ../evidence-2026-soc2
+push2c evidence coverage --dir ../evidence-2026-soc2
 ```
 
 ## Working with agents

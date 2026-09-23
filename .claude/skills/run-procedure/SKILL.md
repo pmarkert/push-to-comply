@@ -22,8 +22,8 @@ Execute (or assist with) a procedure ticket.
    closes it — closure is the sign-off the audit trail depends on. Also
    never check off checklist items you did not perform.
 5. **Triggering:** on-demand procedures can be started with
-   `npx push-to-comply procedures '{"procedure":"<id>", ...dynamic_fields}'`
+   `npx push2c procedures '{"procedure":"<id>", ...dynamic_fields}'`
    (needs GITHUB_TOKEN/OWNER/REPO) or the portal's trigger form. Preview
-   any scheduling question with `npx push-to-comply procedures --dry-run`.
+   any scheduling question with `npx push2c procedures --dry-run`.
 6. If the procedure itself was wrong or painful (missing steps, stale
    links), propose the fix to `controls/procedures/<id>.md` as a PR.

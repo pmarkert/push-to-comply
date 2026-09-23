@@ -14,9 +14,9 @@ repository (start from the
 CLI from its root:
 
 ```
-push-to-comply build         # render the portal into public/, incl. compliance.json
-push-to-comply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
-push-to-comply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
+push2c build         # render the portal into public/, incl. compliance.json
+push2c gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
+push2c procedures    # evaluate schedules and generate tickets (--dry-run to preview)
 ```
 
 Default layouts and assets are bundled; override any of them by creating a

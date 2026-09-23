@@ -28,7 +28,7 @@ to external services, and never weaken its front-matter records.
 1. **Humans approve and submit.** Draft, organize, and recommend; do not
    submit to auditors or mark requests accepted unless a human directs it.
 2. Coverage questions are answered from the program repo:
-   `push-to-comply evidence coverage --dir <this repo>`.
+   `push2c evidence coverage --dir <this repo>`.
 3. Prefer converting recurring evidence needs into `cron` procedures in
    the program repo — that is the point of the whole system.
 4. Use the skills in `.claude/skills/` for the standard workflows.

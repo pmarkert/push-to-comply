@@ -11,9 +11,9 @@ scheduler for recurring procedures come with it.
 
 ```
 npm install
-npx push-to-comply build      # render the portal into public/ (+ compliance.json)
-npx push-to-comply gaps       # which criteria have no mapped control?
-npx push-to-comply validate   # check mappings and front-matter integrity
+npx push2c build      # render the portal into public/ (+ compliance.json)
+npx push2c gaps       # which criteria have no mapped control?
+npx push2c validate   # check mappings and front-matter integrity
 ```
 
 Or skip local tooling entirely: edit the markdown in the GitHub UI and

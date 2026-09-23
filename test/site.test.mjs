@@ -9,7 +9,7 @@ import path from "node:path";
 // CLI into a temp directory and verify the key pages and the machine-readable
 // compliance snapshot.
 
-const BIN = path.resolve("node_modules/.bin/push-to-comply");
+const BIN = path.resolve("node_modules/.bin/push2c");
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptc-site-"));
 
 test("site build succeeds and produces expected artifacts", () => {

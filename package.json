@@ -13,9 +13,9 @@
   "scripts": {
     "test": "npm test --workspaces && node --test test/*.test.mjs",
     "clean": "rm -rf public",
-    "build": "push-to-comply build",
-    "procedures": "push-to-comply procedures",
-    "gaps": "push-to-comply gaps",
+    "build": "push2c build",
+    "procedures": "push2c procedures",
+    "gaps": "push2c gaps",
     "serve": "npx live-server -q public",
     "watch": "npx nodemon --ext '*' --watch packages --watch . --ignore public --exec 'npm run build' & npm run serve"
   },

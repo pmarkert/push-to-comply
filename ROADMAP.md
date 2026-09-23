@@ -12,14 +12,15 @@ These are settled and explain the shape of everything below.
 
 ### Naming
 
-- **npm package, CLI binary, and project all share one name:
-  `push-to-comply`, with `p2c` as a short alias binary.** One name to
-  learn, search for, and type in `npx push-to-comply init`; the command is
-  self-explanatory in CI logs and workflow files that auditors read. `p2c`
-  is shipped only as a convenience alias (both bins point at the same
-  entry point) — documentation, workflows, and skills always use the full
-  name, since `p2c` is ambiguous on its own and the `p2c` npm package name
-  belongs to someone else (`npx p2c` would run their package).
+- **npm package: `push-to-comply`. CLI binary: `push2c`.** The package,
+  repositories, org, and plugin carry the project's brand; the binary is a
+  short, typeable form of it (`push2c build`, `push2c gaps`). The package
+  ships exactly one bin, so `npx push-to-comply <command>` also works with
+  nothing installed — that is the documented first-run form
+  (`npx push-to-comply init`). Inside a program repo with the dependency
+  installed, `npx push2c <command>` resolves to the local binary. The
+  `push2c` npm package name should be reserved by the project so an
+  uninstalled `npx push2c` can never resolve to someone else's package.
 
 ### Standards data
 
@@ -53,7 +54,7 @@ These are settled and explain the shape of everything below.
 ### Distribution and the template ecosystem
 
 - **Templates live in git, not in the CLI.** The engine embeds no
-  compliance content. `push-to-comply init <dir>` scaffolds a new program by
+  compliance content. `push2c init <dir>` scaffolds a new program by
   cloning a **template repository** — any git repo with `controls/`,
   `standards/`, `context/`. A curated registry is published at the
   well-known location `templates.json` on this repo's main branch;
@@ -63,7 +64,7 @@ These are settled and explain the shape of everything below.
   build and share templates — public or private — with no relationship to
   this project beyond the content layout. Different templates can target
   different standard sets.
-- **Three on-ramps, one artifact:** `push-to-comply init` (personalized: fresh
+- **Three on-ramps, one artifact:** `push2c init` (personalized: fresh
   history starting at the client's first commit, org context rewritten);
   GitHub "Use this template" / plain clone for GitHub-centric teams; and
   crucially, **clone-only operation is complete without local tooling** —
@@ -74,7 +75,7 @@ These are settled and explain the shape of everything below.
   reviews, agents).
 - **Pre-publish testing:** the first npm publish happens only after the
   full client journey has been rehearsed from a packed tarball —
-  `npm pack --workspace push-to-comply`, global install, `push-to-comply init`
+  `npm pack --workspace push-to-comply`, global install, `push2c init`
   from a template, dependency installed from the tarball, `build` and
   `gaps` green. This flow is documented in the README and exercised by
   tests.
@@ -128,7 +129,7 @@ Three layers, matched to where knowledge is needed:
    content they describe, and template authors ship their own.
 3. **A published onboarding skill** distributed from this repo via a
    plugin marketplace: triggers on "set up a compliance program", walks
-   template selection, runs `push-to-comply init`, then conducts the interview —
+   template selection, runs `push2c init`, then conducts the interview —
    org facts into `context/*.yaml`, per-policy question banks that edit
    policies to match actual practice (never let aspirational boilerplate
    through — auditors test what you wrote), narrative interviews — then
@@ -161,7 +162,7 @@ Three layers, matched to where knowledge is needed:
   against the real SP 800-53 rev 5.2 catalog (1,014 criteria).
 - **Machine-readable outputs:** `public/compliance.json` — per-criterion
   coverage, per-family stats, gap lists, full control index — plus
-  `push-to-comply gaps [--standard] [--json] [--fail-on-gaps]` as a CI coverage
+  `push2c gaps [--standard] [--json] [--fail-on-gaps]` as a CI coverage
   gate.
 - **Portal redesign:** token-based stylesheet (light/dark), validated
   accessible palette (status always icon + label, never color alone),
@@ -170,10 +171,10 @@ Three layers, matched to where knowledge is needed:
   meters, satisfied/gap badges, GitHub-style task lists, print styles.
 - **Engine/content split** as decided above, with the `push-to-comply` CLI
   (`init`, `build`, `procedures`, `gaps`, `version`).
-- **`push-to-comply init`** with the template-registry model as decided above;
+- **`push2c init`** with the template-registry model as decided above;
   `templates.json` established at the well-known location.
 - **Agent-readiness groundwork:** `AGENTS.md` / `CLAUDE.md` in this repo.
-- **`push-to-comply validate`:** satisfies mappings checked against known
+- **`push2c validate`:** satisfies mappings checked against known
   standards and criterion ids (plus automation-block checks), wired into
   CI — and it immediately caught five policies mapped to a nonexistent
   TSC criterion (CC9.9), now corrected.
@@ -184,7 +185,7 @@ Three layers, matched to where knowledge is needed:
   and the never-closes-its-own-ticket invariant in ticket text and
   prompts.
 - **Evidence architecture shipped:** `docs/evidence-architecture.md`,
-  `push-to-comply evidence coverage` (criteria without evidence, unknown
+  `push2c evidence coverage` (criteria without evidence, unknown
   references, engagement filter, `--fail-on-missing`), and the evidence
   template (`templates/evidence/`) with requests/inbox/evidence/
   observations/runbooks and four agent skills.
@@ -227,7 +228,7 @@ the org owner:
 
 ## Agentic direction
 
-- **MCP server** (`push-to-comply mcp`): `list_gaps`, `get_control`,
+- **MCP server** (`push2c mcp`): `list_gaps`, `get_control`,
   `draft_policy(criteria)`, `trigger_procedure`, `procedure_history` over
   the existing lib API. Stdio-first — launched via `npx push-to-comply
   mcp` with a checked-in `.mcp.json` in templates, so a fresh clone is
