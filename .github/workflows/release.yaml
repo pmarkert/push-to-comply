@@ -1,0 +1,55 @@
+name: Release
+
+# Publishes the engine (push-to-comply) and its alias package (push2c) to npm
+# when a version tag is pushed (e.g. v0.1.0). Both are versioned in lockstep.
+# Requires an NPM_TOKEN repository secret (npm automation token).
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4.0.3
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify tag matches package version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          for PKG in push-to-comply push2c; do
+            PKG_VERSION=$(node -p "require('./packages/$PKG/package.json').version")
+            if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+              echo "Tag $GITHUB_REF_NAME does not match $PKG version $PKG_VERSION" >&2
+              exit 1
+            fi
+          done
+
+      - name: Publish push-to-comply to npm
+        run: npm publish --workspace push-to-comply --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # The alias depends on the exact engine version, so it publishes second.
+      - name: Publish push2c alias to npm
+        run: npm publish --workspace push2c --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

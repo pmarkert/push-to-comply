@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{>head title=control.name base=".." favicon=branding.favicon_url}}
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <section>
+        <h2>Standard: {{control.name}}</h2>
+        <div>{{#markdown}}{{{control.body}}}{{/markdown}}</div>
+
+        <div class="stat-row">
+          <div class="stat-tile">
+            <div class="stat-value">{{control.stats.total}}</div>
+            <div class="stat-label">Criteria</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">{{control.stats.satisfied}}</div>
+            <div class="stat-label">Satisfied by controls</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value">{{control.stats.percent}}%</div>
+            <div class="stat-label">Coverage</div>
+            <div class="progress-bar-container">
+              <div
+                class="progress-bar"
+                style="width: {{control.stats.percent}}%"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="folder-controls">
+          <button onclick="expandAll()">Expand All</button>
+          <button onclick="collapseAll()">Collapse All</button>
+        </div>
+      </section>
+
+      {{#each control.mappings}}
+      <section class="controls">
+        <h3 class="collapsible">
+          <span class="family-heading">
+            <span>{{@key}}</span>
+            <span class="stats"
+              >{{stats.satisfied}} of {{stats.total}} satisfied</span
+            >
+            <span class="progress-bar-container">
+              <span
+                class="progress-bar"
+                style="display:block;width: {{stats.percent}}%"
+              ></span>
+            </span>
+          </span>
+        </h3>
+        <div class="content">
+          <ul class="criteria-list">
+            {{#criteria}}
+            <li
+              class="criteria-item {{#if controls}}satisfied{{else}}open{{/if}}"
+            >
+              <div class="criteria-header">
+                <span class="criteria-id"><a name="{{id}}">{{id}}</a></span>
+                <span class="criteria-name">{{name}}</span>
+                {{#if controls}}
+                <span class="badge badge-good check-icon">Satisfied</span>
+                {{else}}
+                <span class="badge badge-bad x-icon">Gap</span>
+                {{/if}}
+              </div>
+              <div class="criteria-description">
+                {{#if description}}{{description}}{{/if}}
+              </div>
+              {{#if controls}}
+              <ul class="controls-list">
+                {{#each controls}}
+                <li class="control-item">
+                  <a href="{{id}}.html"><i class="{{type}}-icon"></i>{{name}}</a>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
+            </li>
+            {{/criteria}}
+          </ul>
+        </div>
+      </section>
+      {{/each}}
+    </main>
+    {{>footer}}
+  </body>
+</html>

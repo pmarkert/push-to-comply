@@ -1,0 +1,28 @@
+{
+  "name": "push2c",
+  "version": "0.1.0",
+  "description": "Short alias for push-to-comply: installs the push2c CLI (the push-to-comply engine) so `npx push2c init` works anywhere.",
+  "type": "module",
+  "bin": {
+    "push2c": "bin/push2c.mjs"
+  },
+  "files": [
+    "bin"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/push-to-comply/push-to-comply.git",
+    "directory": "packages/push2c"
+  },
+  "homepage": "https://github.com/push-to-comply/push-to-comply",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "push-to-comply": "0.1.0"
+  }
+}

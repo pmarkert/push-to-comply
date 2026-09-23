@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{>head title=organization.short_name base="." favicon=branding.favicon_url}}
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <section class="welcome">
+        <h2>Welcome to the {{organization.short_name}} Trust Portal</h2>
+        <p>{{branding.welcome_message}}</p>
+      </section>
+
+      <section>
+        <h3 class="section-heading">Standards</h3>
+        <div class="standard-grid">
+          {{#each standards}}
+          <a class="standard-card" href="{{id}}.html">
+            <div class="standard-card-title">
+              <i class="standard-icon"></i>{{name}}
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: {{stats.percent}}%"></div>
+            </div>
+            <div class="standard-card-stats">
+              {{stats.satisfied}} of {{stats.total}} criteria satisfied
+            </div>
+          </a>
+          {{/each}}
+        </div>
+      </section>
+
+      <div class="folder-controls">
+        <button onclick="expandAll()">Expand All</button>
+        <button onclick="collapseAll()">Collapse All</button>
+      </div>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="narratives/index.html">Company Narratives</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{#each narratives}} {{>control_list control_type='narrative'}}
+            {{/each}}
+          </ul>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="policies/index.html">Policy Documents</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{#each policies}} {{>control_list control_type='policy'}} {{/each}}
+          </ul>
+        </div>
+      </section>
+
+      <section class="controls">
+        <h3 class="collapsible">
+          <a href="procedures/index.html">Control Procedures</a>
+        </h3>
+        <div class="content">
+          <ul class="control-list">
+            {{# procedures}} {{>control_list control_type='procedure'}} {{/
+            procedures}}
+          </ul>
+        </div>
+      </section>
+    </main>
+    {{>footer}}
+  </body>
+</html>

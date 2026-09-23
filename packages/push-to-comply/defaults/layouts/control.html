@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{>head title=control.name base=base favicon=branding.favicon_url}}
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <div class="policy-content">
+        <div class="policy-header">
+          <h1>{{control.name}}</h1>
+          <div class="policy-meta">
+            {{#if policies.approver}}<span
+              >Approved by: {{policies.approver}}</span
+            >{{/if}}{{#if control.approval_date}}<span
+              >Dated: {{control.approval_date}}</span
+            >{{else}}{{#if policies.approval_date}}<span
+              >Dated: {{policies.approval_date}}</span
+            >{{/if}}{{/if}}{{#if control.owner}}
+            <span>Owner: {{control.owner}}</span>
+            {{/if}}{{#if control.version}}
+            <span>Version: {{control.version}}</span>
+            {{/if}}{{#if_equals control.type "procedure"}}
+            <span
+              >Scheduled: {{#if control.cron}}{{cronstrue
+              control.cron}}{{else}}On Demand{{/if}}</span
+            >
+            {{/if_equals}}{{#if control.automation}}
+            <span>Automation: {{#if control.automation.mode}}{{control.automation.mode}}{{else}}assist{{/if}}</span>
+            {{/if}}{{#if control.satisfies}}{{#each
+            control.satisfies}}<span
+              >Satisfies: <a href="standards/{{@key}}.html">{{@key}}</a> {{#each
+              this}}{{#if_equals @index 0}}{{else}}, {{/if_equals}}<a
+                href="standards/{{@../key}}.html#{{this}}"
+                >{{this}}</a
+              >{{/each}}</span
+            >{{/each}}{{/if}}
+          </div>
+        </div>
+        {{>procedure_form}}
+        <div class="markdown-content">
+          {{#markdown}}{{{control.body}}}{{/markdown}}
+        </div>
+      </div>
+    </main>
+    {{>footer}}
+  </body>
+</html>

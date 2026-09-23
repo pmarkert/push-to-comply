@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{>head title=folder_name base=".." favicon=branding.favicon_url}}
+  </head>
+  <body>
+    {{>header}}
+    <main>
+      <div class="preamble">
+        <h1>Table of Contents &mdash; {{folder_name}}</h1>
+        <ul>
+          {{#each controls}}
+          <li class="tocItem">
+            <input
+              class="tocCheckbox"
+              type="checkbox"
+              id="{{id}}"
+              checked="checked"
+              onchange="showHideArtifact(this)"
+            /><a class="tocLink" href="{{../folder_type}}/index.html#{{id}}"
+              >{{name}}</a
+            >
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{#each controls}}
+      <section class="controls" id="control_{{id}}">
+        <div class="content">
+          <div class="policy-content">
+            <div class="policy-header">
+              <h1><a name="{{id}}">{{name}}</a></h1>
+              <div class="policy-meta">
+                <span>ID: {{id}}</span>
+                {{#if ../policies }}
+                <span>Approved by: {{../policies.approver}}</span>
+                {{/if}} {{#if ../policies}}
+                <span>Dated: {{../policies.approval_date}}</span>
+                {{/if}} {{#if version}}
+                <span>Version: {{version}}</span>
+                {{/if}} {{#if_equals type "procedure"}}
+                <span
+                  >Scheduled: {{#if cron}}{{cronstrue cron}}{{else}}On
+                  Demand{{/if}}</span
+                >
+                {{/if_equals}}
+              </div>
+            </div>
+            <div class="markdown-content">
+              {{#markdown}}{{{body}}}{{/markdown}}
+            </div>
+          </div>
+        </div>
+      </section>
+      {{/each}}
+    </main>
+    {{>footer}}
+  </body>
+</html>

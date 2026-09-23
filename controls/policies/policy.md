@@ -3,7 +3,8 @@ name: Policy Training Policy
 acronym: PTP
 satisfies:
   TSC:
-    - CC9.9
+    - CC1.4
+    - CC2.2
 majorRevisions:
   - date: Jun 1 2018
     comment: Initial document
