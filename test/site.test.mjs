@@ -5,11 +5,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-// End-to-end smoke test: build the template's real content with the ptcomply
+// End-to-end smoke test: build the template's real content with the push-to-comply
 // CLI into a temp directory and verify the key pages and the machine-readable
 // compliance snapshot.
 
-const BIN = path.resolve("node_modules/.bin/ptcomply");
+const BIN = path.resolve("node_modules/.bin/push-to-comply");
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptc-site-"));
 
 test("site build succeeds and produces expected artifacts", () => {

@@ -24,8 +24,8 @@ Author or revise a control document in this program repo.
    `public/compliance.json` after a build). Map only criteria the document
    genuinely helps satisfy.
 5. **Verify before finishing**, from the repo root:
-   - `npx ptcomply validate` — mappings and front-matter integrity
-   - `npx ptcomply build` — catches unknown macros and broken links
-   - `npx ptcomply gaps` — confirm intended criteria flipped to satisfied
+   - `npx push-to-comply validate` — mappings and front-matter integrity
+   - `npx push-to-comply build` — catches unknown macros and broken links
+   - `npx push-to-comply gaps` — confirm intended criteria flipped to satisfied
 6. Changes ship as a pull request — the PR review is the approval
    evidence. Keep the commit scoped and descriptive.

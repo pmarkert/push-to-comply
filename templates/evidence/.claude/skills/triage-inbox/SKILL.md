@@ -20,5 +20,5 @@ Triage `inbox/` for this engagement.
    beyond `open → in-progress`; `submitted`/`accepted` are human actions.
 5. Finish with a summary: items triaged, evidence entries created, inbox
    items that matched nothing, and — if the program repo is available —
-   run `ptcomply evidence coverage --dir .` from it and report which open
+   run `push-to-comply evidence coverage --dir .` from it and report which open
    requests now look ready to submit.

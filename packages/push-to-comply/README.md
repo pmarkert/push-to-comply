@@ -10,13 +10,13 @@ tickets.
 
 This package is the tooling only. Your compliance content lives in your own
 repository (start from the
-[template](https://github.com/push-to-comply/push-to-comply)); run the `ptcomply`
+[template](https://github.com/push-to-comply/push-to-comply)); run the `push-to-comply`
 CLI from its root:
 
 ```
-ptcomply build         # render the portal into public/, incl. compliance.json
-ptcomply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
-ptcomply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
+push-to-comply build         # render the portal into public/, incl. compliance.json
+push-to-comply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
+push-to-comply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
 ```
 
 Default layouts and assets are bundled; override any of them by creating a

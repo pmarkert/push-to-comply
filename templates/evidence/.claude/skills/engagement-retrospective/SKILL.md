@@ -17,7 +17,7 @@ starts smarter and collects most of its evidence automatically.
 3. Open observations: confirm each has an owner and due date; anything
    structural should already be a program-repo PR — if not, draft it.
 4. Propose updates to the org's evidence *template* repository (the one
-   `ptcomply init` clones for next year): improved runbooks, request
+   `push-to-comply init` clones for next year): improved runbooks, request
    checklists, folder structure — so improvements outlive this repo.
 5. Produce a closing summary: requests submitted/accepted, evidence
    produced, observations open vs resolved, procedures created from this

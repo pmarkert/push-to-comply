@@ -45,7 +45,7 @@ export function applyAutomation(procedure) {
     "",
     "---",
     "",
-    `<!-- ptcomply:automation mode="${mode}" procedure="${procedure.id}" -->`,
+    `<!-- push-to-comply:automation mode="${mode}" procedure="${procedure.id}" -->`,
     "## Agent Instructions",
     "",
     mode === "assist"

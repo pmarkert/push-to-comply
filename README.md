@@ -199,7 +199,7 @@ automation:
 ```
 
 Tickets for such procedures gain an **Agent Instructions** section (with a
-machine-readable `<!-- ptcomply:automation ... -->` marker) and the
+machine-readable `<!-- push-to-comply:automation ... -->` marker) and the
 `automation:agent` label. Any runner can act on that contract:
 
 - The bundled [.github/workflows/agent_procedures.yaml](.github/workflows/agent_procedures.yaml)
@@ -332,7 +332,7 @@ Agent support comes in three layers:
    is the human sign-off). The evidence template ships its own set
    (triage-inbox, draft-evidence, log-observation,
    engagement-retrospective).
-3. **The `ptcomply` plugin** — a guided onboarding interview
+3. **The `push-to-comply` plugin** — a guided onboarding interview
    (`setup-compliance-program`) that scaffolds a program, fills the
    organization context, and tailors policies to what the organization
    *actually does* before an auditor ever reads them. Install in Claude
@@ -340,7 +340,7 @@ Agent support comes in three layers:
 
    ```
    /plugin marketplace add push-to-comply/push-to-comply
-   /plugin install ptcomply@push-to-comply
+   /plugin install push-to-comply@push-to-comply
    ```
 
 Procedures can additionally declare [`automation`](#automation-property-agent-executed-procedures)
@@ -351,11 +351,11 @@ blocks so agents execute or assist with the recurring work itself.
 Audit engagements (SOC 2, customer assessments) run in **separate,
 engagement-scoped evidence repositories** — never in this repo — linked
 back to the program by front-matter (`supports:` mirrors `satisfies:`).
-Start one from the evidence template (`ptcomply init evidence-2026-soc2`
+Start one from the evidence template (`push-to-comply init evidence-2026-soc2`
 choosing the evidence template), and check what still needs evidence with:
 
 ```
-ptcomply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--fail-on-missing]
+push-to-comply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--fail-on-missing]
 ```
 
 See [docs/evidence-architecture.md](docs/evidence-architecture.md) for the
@@ -370,29 +370,29 @@ Every site build also writes `public/compliance.json`: a full snapshot of the co
 
 The project is split into two parts:
 
-- **The `push-to-comply` engine** (npm package, in [packages/push-to-comply/](packages/push-to-comply/)): all executable tooling — the site renderer, the ticket scheduler, the OSCAL converter, and the default layouts/assets — exposed as the `ptcomply` CLI:
+- **The `push-to-comply` engine** (npm package, in [packages/push-to-comply/](packages/push-to-comply/)): all executable tooling — the site renderer, the ticket scheduler, the OSCAL converter, and the default layouts/assets — exposed as the `push-to-comply` CLI:
 
   ```
-  ptcomply build         # render the portal + compliance.json
-  ptcomply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
-  ptcomply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
+  push-to-comply build         # render the portal + compliance.json
+  push-to-comply procedures    # evaluate schedules and generate tickets (--dry-run to preview)
+  push-to-comply gaps          # report unsatisfied criteria (--json, --standard KEY, --fail-on-gaps)
   ```
 
 - **This repository's root: the content template** that organizations clone — `controls/`, `standards/`, `context/`, branding assets, and thin GitHub workflows that call the CLI. The root consumes the engine through an npm workspace today, exactly as clients will consume it from the npm registry once published; engine upgrades then become a version bump instead of merging template history.
 
 Layouts and CSS/JS assets ship inside the engine as defaults. A content repository can override any of them by creating a file of the same name under its own `layouts/` or `assets/` directory (branding files like `assets/logo.svg` are the common case).
 
-## Starting a new program: `ptcomply init` and template repositories
+## Starting a new program: `push-to-comply init` and template repositories
 
 The engine embeds no compliance content. New programs start from **template
 repositories** — ordinary git repositories containing `controls/`,
 `standards/`, and `context/`:
 
 ```
-ptcomply init my-compliance-program                          # choose from the published registry
-ptcomply init my-program --template acme/soc2-hipaa-template # any GitHub repo (owner/repo shorthand)
-ptcomply init my-program --template git@github.com:me/private-template.git
-ptcomply init my-program --template ../local-template        # local path
+push-to-comply init my-compliance-program                          # choose from the published registry
+push-to-comply init my-program --template acme/soc2-hipaa-template # any GitHub repo (owner/repo shorthand)
+push-to-comply init my-program --template git@github.com:me/private-template.git
+push-to-comply init my-program --template ../local-template        # local path
 ```
 
 `init` clones the template with *your* git credentials (so private templates
@@ -402,7 +402,7 @@ repository with an initial commit — your program's history starts at *your*
 first commit, which matters when PR history is audit evidence.
 
 The curated registry lives at [templates.json](templates.json) on this
-repository's main branch (`ptcomply init --list` shows it; `--registry`
+repository's main branch (`push-to-comply init --list` shows it; `--registry`
 points elsewhere). Anyone can build and share template repositories —
 different standards, industries, or a consultancy's private starting point —
 and they need no relationship to this project beyond the content layout.
@@ -423,7 +423,7 @@ git clone https://github.com/push-to-comply/push-to-comply
 cd push-to-comply && npm install && npm test
 npm pack --workspace push-to-comply     # produces push-to-comply-<version>.tgz
 npm install -g ./push-to-comply-<version>.tgz
-ptcomply version
+push-to-comply version
 ```
 
 Inside a scaffolded program, point the dependency at the tarball until the
@@ -435,7 +435,7 @@ too.)
 
 - Requires Node.js 22+ (see `.nvmrc`).
 - `npm test` runs the engine's test suite (against bundled fixtures) and the template's integration tests (`node:test`, no extra dev dependencies). CI runs tests and a site build on every push and pull request.
-- `ptcomply procedures --dry-run` evaluates the ticket scheduler without creating issues and works offline.
+- `push-to-comply procedures --dry-run` evaluates the ticket scheduler without creating issues and works offline.
 - See [AGENTS.md](AGENTS.md) for a repository guide aimed at both human contributors and AI coding agents.
 
 ## Options for documentation website publishing:

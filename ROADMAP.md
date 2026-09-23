@@ -12,11 +12,14 @@ These are settled and explain the shape of everything below.
 
 ### Naming
 
-- **npm package: `push-to-comply`. CLI binary: `ptcomply`.** The package
-  keeps the project's brand; the binary is short, unambiguous, and free of
-  conflicts (`comply` and `complyctl` are already claimed by other tools in
-  or near this space). Package and bin names are independent in npm, so we
-  get both.
+- **npm package, CLI binary, and project all share one name:
+  `push-to-comply`, with `p2c` as a short alias binary.** One name to
+  learn, search for, and type in `npx push-to-comply init`; the command is
+  self-explanatory in CI logs and workflow files that auditors read. `p2c`
+  is shipped only as a convenience alias (both bins point at the same
+  entry point) — documentation, workflows, and skills always use the full
+  name, since `p2c` is ambiguous on its own and the `p2c` npm package name
+  belongs to someone else (`npx p2c` would run their package).
 
 ### Standards data
 
@@ -34,7 +37,7 @@ These are settled and explain the shape of everything below.
 
 - **The engine and the content are separate artifacts.** The engine is the
   `push-to-comply` npm package (in `packages/push-to-comply`): renderer,
-  scheduler, OSCAL converter, `ptcomply` CLI, and the default
+  scheduler, OSCAL converter, `push-to-comply` CLI, and the default
   layouts/assets. A compliance program repository contains only content —
   `controls/`, `standards/`, `context/`, branding — plus thin workflows
   calling the CLI. Engine upgrades are a version bump, never a template
@@ -50,7 +53,7 @@ These are settled and explain the shape of everything below.
 ### Distribution and the template ecosystem
 
 - **Templates live in git, not in the CLI.** The engine embeds no
-  compliance content. `ptcomply init <dir>` scaffolds a new program by
+  compliance content. `push-to-comply init <dir>` scaffolds a new program by
   cloning a **template repository** — any git repo with `controls/`,
   `standards/`, `context/`. A curated registry is published at the
   well-known location `templates.json` on this repo's main branch;
@@ -60,7 +63,7 @@ These are settled and explain the shape of everything below.
   build and share templates — public or private — with no relationship to
   this project beyond the content layout. Different templates can target
   different standard sets.
-- **Three on-ramps, one artifact:** `ptcomply init` (personalized: fresh
+- **Three on-ramps, one artifact:** `push-to-comply init` (personalized: fresh
   history starting at the client's first commit, org context rewritten);
   GitHub "Use this template" / plain clone for GitHub-centric teams; and
   crucially, **clone-only operation is complete without local tooling** —
@@ -71,7 +74,7 @@ These are settled and explain the shape of everything below.
   reviews, agents).
 - **Pre-publish testing:** the first npm publish happens only after the
   full client journey has been rehearsed from a packed tarball —
-  `npm pack --workspace push-to-comply`, global install, `ptcomply init`
+  `npm pack --workspace push-to-comply`, global install, `push-to-comply init`
   from a template, dependency installed from the tarball, `build` and
   `gaps` green. This flow is documented in the README and exercised by
   tests.
@@ -125,13 +128,13 @@ Three layers, matched to where knowledge is needed:
    content they describe, and template authors ship their own.
 3. **A published onboarding skill** distributed from this repo via a
    plugin marketplace: triggers on "set up a compliance program", walks
-   template selection, runs `ptcomply init`, then conducts the interview —
+   template selection, runs `push-to-comply init`, then conducts the interview —
    org facts into `context/*.yaml`, per-policy question banks that edit
    policies to match actual practice (never let aspirational boilerplate
    through — auditors test what you wrote), narrative interviews — then
    `build` + `gaps` and GitHub setup. Re-runs diff existing content
    against the question bank to update a program.
-- Skills drive the `ptcomply` CLI directly; an MCP server comes later for
+- Skills drive the `push-to-comply` CLI directly; an MCP server comes later for
   surfaces without a shell. **Invariant for agent-executed work: the agent
   never closes its own ticket** — a human reviews posted evidence and
   closes, so closure remains sign-off.
@@ -158,19 +161,19 @@ Three layers, matched to where knowledge is needed:
   against the real SP 800-53 rev 5.2 catalog (1,014 criteria).
 - **Machine-readable outputs:** `public/compliance.json` — per-criterion
   coverage, per-family stats, gap lists, full control index — plus
-  `ptcomply gaps [--standard] [--json] [--fail-on-gaps]` as a CI coverage
+  `push-to-comply gaps [--standard] [--json] [--fail-on-gaps]` as a CI coverage
   gate.
 - **Portal redesign:** token-based stylesheet (light/dark), validated
   accessible palette (status always icon + label, never color alone),
   inline SVG icons replacing the CDN icon font (private/air-gapped portals
   render fully offline), standards coverage cards, stat tiles, family
   meters, satisfied/gap badges, GitHub-style task lists, print styles.
-- **Engine/content split** as decided above, with the `ptcomply` CLI
+- **Engine/content split** as decided above, with the `push-to-comply` CLI
   (`init`, `build`, `procedures`, `gaps`, `version`).
-- **`ptcomply init`** with the template-registry model as decided above;
+- **`push-to-comply init`** with the template-registry model as decided above;
   `templates.json` established at the well-known location.
 - **Agent-readiness groundwork:** `AGENTS.md` / `CLAUDE.md` in this repo.
-- **`ptcomply validate`:** satisfies mappings checked against known
+- **`push-to-comply validate`:** satisfies mappings checked against known
   standards and criterion ids (plus automation-block checks), wired into
   CI — and it immediately caught five policies mapped to a nonexistent
   TSC criterion (CC9.9), now corrected.
@@ -181,13 +184,13 @@ Three layers, matched to where knowledge is needed:
   and the never-closes-its-own-ticket invariant in ticket text and
   prompts.
 - **Evidence architecture shipped:** `docs/evidence-architecture.md`,
-  `ptcomply evidence coverage` (criteria without evidence, unknown
+  `push-to-comply evidence coverage` (criteria without evidence, unknown
   references, engagement filter, `--fail-on-missing`), and the evidence
   template (`templates/evidence/`) with requests/inbox/evidence/
   observations/runbooks and four agent skills.
 - **Three-layer agent enablement shipped:** operating skills in the
   program template (`add-policy`, `map-controls`, `run-procedure`),
-  evidence-repo skills, and the `ptcomply` plugin
+  evidence-repo skills, and the `push-to-comply` plugin
   (`setup-compliance-program` onboarding interview with question-bank
   references) behind a marketplace manifest.
 - **Release machinery:** URLs point at the `push-to-comply` org,
@@ -224,7 +227,7 @@ the org owner:
 
 ## Agentic direction
 
-- **MCP server** (`ptcomply mcp`): `list_gaps`, `get_control`,
+- **MCP server** (`push-to-comply mcp`): `list_gaps`, `get_control`,
   `draft_policy(criteria)`, `trigger_procedure`, `procedure_history` over
   the existing lib API. Stdio-first — launched via `npx push-to-comply
   mcp` with a checked-in `.mcp.json` in templates, so a fresh clone is

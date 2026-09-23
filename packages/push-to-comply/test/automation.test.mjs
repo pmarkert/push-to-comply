@@ -27,7 +27,7 @@ test("automation appends agent instructions and the automation label", () => {
   assert.match(procedure.body, /^- \[ \] do the thing/);
   assert.match(
     procedure.body,
-    /<!-- ptcomply:automation mode="assist" procedure="procedures\/review" -->/
+    /<!-- push-to-comply:automation mode="assist" procedure="procedures\/review" -->/
   );
   assert.match(procedure.body, /## Agent Instructions/);
   assert.match(procedure.body, /never close this ticket/);

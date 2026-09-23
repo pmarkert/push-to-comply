@@ -6,10 +6,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// End-to-end tests of the ptcomply CLI against the fixture content repo in
+// End-to-end tests of the push-to-comply CLI against the fixture content repo in
 // test/fixtures — no dependence on any real compliance content.
 
-const BIN = fileURLToPath(new URL("../bin/ptcomply.mjs", import.meta.url));
+const BIN = fileURLToPath(new URL("../bin/push-to-comply.mjs", import.meta.url));
 const FIXTURES = fileURLToPath(new URL("./fixtures", import.meta.url));
 
 function run(args, options = {}) {
@@ -21,7 +21,7 @@ function run(args, options = {}) {
   });
 }
 
-const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptcomply-cli-"));
+const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "push-to-comply-cli-"));
 
 test("build renders the fixture site with the engine's default layouts", () => {
   run(["build", "--quiet", "--out", outDir]);
@@ -99,4 +99,15 @@ test("version prints the package version", () => {
     )
   );
   assert.equal(run(["version"]).trim(), pkg.version);
+});
+
+test("package exposes push-to-comply and the p2c alias to the same entry point", () => {
+  const pkg = JSON.parse(
+    fs.readFileSync(
+      fileURLToPath(new URL("../package.json", import.meta.url)),
+      "utf8"
+    )
+  );
+  assert.equal(pkg.bin["push-to-comply"], "bin/push-to-comply.mjs");
+  assert.equal(pkg.bin.p2c, pkg.bin["push-to-comply"]);
 });

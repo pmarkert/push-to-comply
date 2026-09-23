@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Template compliance program repository for push-to-comply. Clone this, replace the content with your organization's policies, narratives, and procedures, and the ptcomply engine does the rest.",
+  "description": "Template compliance program repository for push-to-comply. Clone this, replace the content with your organization's policies, narratives, and procedures, and the push-to-comply engine does the rest.",
   "workspaces": [
     "packages/push-to-comply"
   ],
@@ -13,9 +13,9 @@
   "scripts": {
     "test": "npm test --workspaces && node --test test/*.test.mjs",
     "clean": "rm -rf public",
-    "build": "ptcomply build",
-    "procedures": "ptcomply procedures",
-    "gaps": "ptcomply gaps",
+    "build": "push-to-comply build",
+    "procedures": "push-to-comply procedures",
+    "gaps": "push-to-comply gaps",
     "serve": "npx live-server -q public",
     "watch": "npx nodemon --ext '*' --watch packages --watch . --ignore public --exec 'npm run build' & npm run serve"
   },

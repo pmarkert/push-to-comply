@@ -29,13 +29,13 @@ and messages descriptive.
 
 ## Commands (from the repo root)
 
-- `npx ptcomply validate` — mapping and front-matter integrity (run after
+- `npx push-to-comply validate` — mapping and front-matter integrity (run after
   every content change)
-- `npx ptcomply build` — render the portal; catches unknown macros and
+- `npx push-to-comply build` — render the portal; catches unknown macros and
   broken links; writes `public/compliance.json`
-- `npx ptcomply gaps [--standard KEY]` — unsatisfied criteria
-- `npx ptcomply procedures --dry-run` — preview the ticket scheduler
-- `npx ptcomply evidence coverage --dir <evidence-repo>` — evidence
+- `npx push-to-comply gaps [--standard KEY]` — unsatisfied criteria
+- `npx push-to-comply procedures --dry-run` — preview the ticket scheduler
+- `npx push-to-comply evidence coverage --dir <evidence-repo>` — evidence
   crosswalk (audits live in separate evidence repositories)
 
 ## Skills

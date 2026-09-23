@@ -27,7 +27,7 @@ audience — possibly published as a trust portal.
   with policy history could only be purged by rewriting the very approval
   trail you exist to preserve.
 - **Lifecycles differ.** The program is continuous; engagements are
-  annual. Next year is a new repo (`ptcomply init evidence-2027-soc2
+  annual. Next year is a new repo (`push-to-comply init evidence-2027-soc2
   --template <your-evidence-template>` — the template mechanism works for
   evidence repos too).
 - **The program repo stays small and clonable forever.**
@@ -76,7 +76,7 @@ a relative link to the file.
 From the **program** repo:
 
 ```
-ptcomply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--json] [--fail-on-missing]
+push-to-comply evidence coverage --dir ../evidence-2026-soc2 [--engagement 2026-soc2] [--json] [--fail-on-missing]
 ```
 
 reports, per standard, which criteria have evidence and which have none —

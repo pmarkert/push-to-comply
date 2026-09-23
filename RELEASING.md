@@ -21,8 +21,8 @@ this once more before the first publish:
 npm pack --workspace push-to-comply
 npm install -g ./push-to-comply-<version>.tgz
 node scripts/export-repos.mjs
-ptcomply init /tmp/rehearsal --template dist/repos/soc2-template --name "Test Co" --short-name TestCo
-cd /tmp/rehearsal && npm install <path-to-tarball> && npx ptcomply validate && npx ptcomply build && npx ptcomply gaps
+push-to-comply init /tmp/rehearsal --template dist/repos/soc2-template --name "Test Co" --short-name TestCo
+cd /tmp/rehearsal && npm install <path-to-tarball> && npx push-to-comply validate && npx push-to-comply build && npx push-to-comply gaps
 ```
 
 ### Optional: full registry rehearsal with a local npm registry
@@ -49,7 +49,7 @@ npm publish --workspace push-to-comply --registry http://localhost:4873 --//loca
 # The exact first-user experience, resolved through the registry:
 export npm_config_registry=http://localhost:4873
 cd /tmp && npx -y push-to-comply init acme --template <monorepo>/dist/repos/soc2-template --name "Test Co" --short-name TestCo
-cd acme && npm install && npx ptcomply validate && npx ptcomply build && npx ptcomply gaps
+cd acme && npm install && npx push-to-comply validate && npx push-to-comply build && npx push-to-comply gaps
 ```
 
 (`--//localhost:4873/:_authToken=fake` satisfies npm's publish-needs-auth
@@ -108,7 +108,7 @@ soc2-template repo, run `npm install` once and commit the generated
 - `npx push-to-comply init smoke-test` → registry loads from the org repo,
   clones `soc2-template`, and the scaffold builds.
 - In Claude Code: `/plugin marketplace add push-to-comply/push-to-comply`
-  and `/plugin install ptcomply@push-to-comply`.
+  and `/plugin install push-to-comply@push-to-comply`.
 - A clone of `soc2-template` with no local tooling: push a trivial content
   PR and confirm the CI + portal workflows run green.
 

@@ -7,7 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveTemplateUrl } from "../lib/init.mjs";
 
-const BIN = fileURLToPath(new URL("../bin/ptcomply.mjs", import.meta.url));
+const BIN = fileURLToPath(new URL("../bin/push-to-comply.mjs", import.meta.url));
 const FIXTURES = fileURLToPath(new URL("./fixtures", import.meta.url));
 
 const GIT_ENV = {
@@ -27,7 +27,7 @@ function run(args, options = {}) {
   });
 }
 
-const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptcomply-init-"));
+const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "push-to-comply-init-"));
 const templateRepo = path.join(workDir, "template-repo");
 
 before(() => {

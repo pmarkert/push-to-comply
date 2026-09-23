@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Validate content
-        run: npx ptcomply validate
+        run: npx push-to-comply validate
 
       - name: Verify site build
-        run: npx ptcomply build
+        run: npx push-to-comply build
