@@ -14,13 +14,17 @@ These are settled and explain the shape of everything below.
 
 - **npm package: `push-to-comply`. CLI binary: `push2c`.** The package,
   repositories, org, and plugin carry the project's brand; the binary is a
-  short, typeable form of it (`push2c build`, `push2c gaps`). The package
-  ships exactly one bin, so `npx push-to-comply <command>` also works with
-  nothing installed — that is the documented first-run form
-  (`npx push-to-comply init`). Inside a program repo with the dependency
-  installed, `npx push2c <command>` resolves to the local binary. The
-  `push2c` npm package name should be reserved by the project so an
-  uninstalled `npx push2c` can never resolve to someone else's package.
+  short, typeable form of it (`push2c build`, `push2c gaps`). Split
+  package/bin names are a familiar pattern (`typescript`/`tsc`,
+  `@angular/cli`/`ng`).
+- **`push2c` is also published as a thin alias package** that depends on
+  the exact matching engine version and exposes the same bin, so both
+  `npx push-to-comply init` and `npx push2c init` work with nothing
+  installed, and nobody else can claim the short name. The two packages
+  version in lockstep (enforced by tests and the release workflow).
+- **Both npm names are reserved ahead of release** with `0.0.0`
+  placeholder packages (`scripts/reserve-npm-names.mjs`); the real
+  `0.1.0` supersedes them.
 
 ### Standards data
 
@@ -215,6 +219,10 @@ the org owner:
    install, clone-only CI) per RELEASING.md step 4.
 
 ## Near term
+
+- **Upgrade cron-parser to v5:** v4 is deprecated and npm warns on install;
+  the scheduler uses a small surface (`parseExpression`/`next`), covered by
+  `scheduler.test.mjs`.
 
 - **Review metadata from git:** derive `approval_date`/approver from PR
   merge history instead of hand-edited front-matter; render "last

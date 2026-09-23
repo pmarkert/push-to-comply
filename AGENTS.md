@@ -24,11 +24,13 @@ repository root is the **content template** that organizations clone.
 | `packages/push-to-comply/bin/`          | The `push-to-comply` CLI                                                             |
 | `packages/push-to-comply/defaults/`     | Default layouts and CSS/JS assets (a content repo overrides by filename)       |
 | `packages/push-to-comply/test/`         | Engine tests, self-contained against `test/fixtures/`                          |
+| `packages/push2c/`                      | Thin alias package: depends on the exact engine version, exposes `push2c`       |
 | `test/`                                 | Template integration tests (build the real content via the CLI)                |
 | `.claude/skills/`                       | Operating skills that ship with the program template                           |
 | `plugins/push-to-comply/`                     | The published onboarding plugin (marketplace at `.claude-plugin/`)             |
 | `templates/evidence/`                   | Evidence-repository template (exported to its own repo on release)             |
 | `docs/`                                 | Architecture guides (evidence architecture, etc.)                              |
+| `scripts/`                              | Release tooling: `export-repos.mjs` (template repos), `reserve-npm-names.mjs` (npm placeholders) |
 
 ## Commands
 

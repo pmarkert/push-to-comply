@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Template compliance program repository for push-to-comply. Clone this, replace the content with your organization's policies, narratives, and procedures, and the push-to-comply engine does the rest.",
   "workspaces": [
-    "packages/push-to-comply"
+    "packages/push-to-comply",
+    "packages/push2c"
   ],
   "dependencies": {
     "push-to-comply": "^0.1.0"
